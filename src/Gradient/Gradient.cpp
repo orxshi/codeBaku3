@@ -76,6 +76,13 @@ void Gradient::leastSquaresCoeffs (Grid& gr)
     {
         Cell& cll = gr.cell[c];
         
+        r_11 = 0.;
+        r_12 = 0.;
+        r_13 = 0.;
+        r_22 = 0.;
+        r_23 = 0.;
+        r_33 = 0.;
+        
         for (const int f: gr.cell[c].nei)        
         {            
             d = gr.cell[f].cnt - cll.cnt;
@@ -91,6 +98,13 @@ void Gradient::leastSquaresCoeffs (Grid& gr)
             r_23 += dy * dz;
             r_33 += dz * dz;
         }
+        
+        //cout << "dx = " << dx << endl;
+        //cout << "dy = " << dy << endl;
+        //cout << "dz = " << dz << endl;
+        
+        //cout << "r_12 = " << r_12 << endl;
+        //cout << "r_22 = " << r_22 << endl;
 
         r_11 = sqrt (r_11);
         r_12 /= r_11;

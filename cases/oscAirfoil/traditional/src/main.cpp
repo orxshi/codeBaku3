@@ -58,6 +58,10 @@ int main(int argc, char** argv)
     Iblank iblank;
     iblank.identify (grs[0], grs[1]);
     iblank.identify (grs[1], grs[0]);
+    iblank.treatFieldIslands (grs[0]);
+    iblank.treatFieldIslands (grs[1]);
+    iblank.treatFringeIslands (grs[0]);
+    iblank.treatFringeIslands (grs[1]);
     
     grs[0].outAllVTK (0);
     grs[1].outAllVTK (0);

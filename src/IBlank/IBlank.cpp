@@ -360,3 +360,104 @@ void Iblank::interpolate (Grid& gr, Gradient& gradient, Grid& ogr)
     }
     gr.apply_BCs();
 }
+
+void Iblank::treatFieldIslands (Grid& grAct)
+{
+    for (int c=grAct.n_bou_elm; c<grAct.cell.size(); ++c)
+    {        
+        int nFieldNeis = 0;
+    
+        Cell& cll = grAct.cell[c];
+        
+        if (cll.iBlank == iBlank_t::FIELD)
+        {
+            for (int n:cll.nei)
+            {
+                if (grAct.cell[n].iBlank == iBlank_t::FIELD)
+                {
+                    ++nFieldNeis;
+                }
+            }
+            
+            if (nFieldNeis == 0) // island found
+            {
+                int iR;
+                double dis = BIG_POS_NUM;
+            
+                cll.iBlank = iBlank_t::FRINGE;
+                
+                for (int r=0; r<cll.receiver.size(); ++r)
+                {                
+                    cll.receiver[r]->iBlank = iBlank_t::FIELD;
+                    cll.receiver[r]->donor = NULL;
+                    double tdis = mag(cll.cnt - cll.receiver[r]->cnt);
+                    if (tdis < dis)
+                    {
+                        iR = r;
+                        dis = tdis;
+                    }
+                }
+                
+                if (cll.receiver.size() > 0)
+                {
+                    cll.receiver[iR]->receiver.push_back (&cll);
+                    cll.donor = cll.receiver[iR];
+                    
+                    for (int r=0; r<cll.receiver.size(); ++r)
+                    {
+                        cll.receiver[r] = NULL;
+                    }            
+                    cll.receiver.clear();                
+                }
+            }
+        }
+    }
+}
+
+void Iblank::treatFringeIslands (Grid& grAct)
+{
+    for (int c=grAct.n_bou_elm; c<grAct.cell.size(); ++c)
+    {        
+        int nFringeNeis = 0;
+    
+        Cell& cll = grAct.cell[c];
+        
+        if (cll.iBlank == iBlank_t::FRINGE)
+        {
+            for (int n:cll.nei)
+            {
+                if (grAct.cell[n].iBlank == iBlank_t::FRINGE)
+                {
+                    ++nFringeNeis;
+                }
+            }
+            
+            if (nFringeNeis == 0) // island found
+            {
+                int iR;
+                double dis = BIG_POS_NUM;
+            
+                cll.iBlank = iBlank_t::FIELD;
+                
+                if (cll.donor != NULL)
+                {   
+                    for (int r=0; r<cll.donor->receiver.size(); ++r)
+                    {
+                        if (cll.donor->receiver[r] == &cll)
+                        {
+                            cll.donor->receiver.erase(cll.donor->receiver.begin() + r);
+                            break;
+                        }
+                    }
+                    
+                    cll.donor = NULL;
+                }
+                else
+                {
+                    cout << "has no donor" << endl;
+                    exit(-2);
+                }
+            }
+        }
+    }
+}

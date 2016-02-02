@@ -27,6 +27,8 @@ void Solver::getRes (Grid& gr)
                     {
                         double RHS = cll.R[i];
                         res[i] = max( fabs(RHS), res[i] );
+                        
+                        
                     }
                 }
             }

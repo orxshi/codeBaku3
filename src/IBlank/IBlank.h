@@ -18,6 +18,8 @@ struct Iblank
     Iblank ();
     void identify (Grid& grAct, Grid& grPas);
     void interpolate (Grid& gr, Gradient& gradient, Grid& ogr);
+    void treatFieldIslands (Grid& grAct);
+    void treatFringeIslands (Grid& grAct);
 };
 
 #endif	/* IBLANK_H */

@@ -28,10 +28,10 @@ int main(int argc, char** argv)
     gr.read_grid();
     gr.set_grid();
 
-    Solver solSteady (gr, "SOLVER-STEADY");
+    Solver solSteady (gr, "SOLVER-STEADY", gr.n_in_elm);
     solSteady.read ("Solver/solSteady.dat");
     
-    Solver solOscAirfoil (gr, "SOLVER-OSC-AIRFOIL");
+    Solver solOscAirfoil (gr, "SOLVER-OSC-AIRFOIL", gr.n_in_elm);
     solOscAirfoil.read ("Solver/solOscAirfoil.dat");
 
     OscInit oscInit;

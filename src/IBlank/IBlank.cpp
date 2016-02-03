@@ -100,11 +100,17 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
 
     for (int c=grAct.n_bou_elm; c<grAct.cell.size(); ++c)
     {
+        
+    
         int index;        
         Cell& cll = grAct.cell[c];
         
+        
+        
         if (cll.iBlank == iBlank_t::UNDEFINED)
         {            
+            
+        
             index = getIndex (cll);
             
             if (index == -1)
@@ -141,6 +147,8 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
             }
             else
             {
+            
+            
                 if (grPas.cell[index].iBlank == iBlank_t::FIELD)
                 {
                     cll.iBlank = iBlank_t::FRINGE;
@@ -156,10 +164,14 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
                     double var1;
                     double var2;
                     
+                    
+                    
                     if (cellCriter == cellCriter_t::WALL)
                     {
                         var1 = grPas.cell[index].wallDistance;
                         var2 = cll.wallDistance;
+                        
+                            
                     }
                     else if (cellCriter == cellCriter_t::SIZE)
                     {
@@ -467,6 +479,7 @@ void Iblank::treatVoidAreas (Grid& grAct)
     for (int c=grAct.n_bou_elm; c<grAct.cell.size(); ++c)
     {        
         int nFringeNeis = 0;
+        int nHoleNeis = 0;
     
         Cell& cll = grAct.cell[c];
         
@@ -478,9 +491,13 @@ void Iblank::treatVoidAreas (Grid& grAct)
                 {
                     ++nFringeNeis;
                 }
+                else if (grAct.cell[n].iBlank == iBlank_t::HOLE)
+                {
+                    ++nHoleNeis;
+                }
             }
             
-            if (nFringeNeis == 1)
+            if (nFringeNeis == 1 && nHoleNeis == 0)
             {
                 int iR;                
             

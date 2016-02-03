@@ -56,19 +56,27 @@ int main(int argc, char** argv)
     
     // hole cutting
     Iblank iblank;
-    iblank.identify (grs[0], grs[1]);
+    /*iblank.identify (grs[0], grs[1]);
     iblank.identify (grs[1], grs[0]);
     iblank.treatFieldIslands (grs[0]);
     iblank.treatFieldIslands (grs[1]);
     iblank.treatFringeIslands (grs[0]);
     iblank.treatFringeIslands (grs[1]);
     iblank.treatVoidAreas (grs[0]);
-    iblank.treatVoidAreas (grs[1]);
+    iblank.treatVoidAreas (grs[1]);*/
+    
+    for (int g=0; g<grs.size(); ++g)
+    {
+        for (int c=grs[g].n_bou_elm; c<grs[g].cell.size(); ++c)
+        {
+            grs[g].cell[c].iBlank = iBlank_t::FIELD;
+        }
+    }
     
     grs[0].outAllVTK (0);
     grs[1].outAllVTK (0);
     
-    exit(-2);
+    
     
     int nActiveElms[2];
     nActiveElms[0] = 0;
@@ -94,6 +102,8 @@ int main(int argc, char** argv)
     sma.read ("MovingGrid/smAirfoil.dat");
     
     log (mainDir, nActiveElms[0] + nActiveElms[1], "nActiveElms", "");
+    cout << "nActiveElms[0] = " << nActiveElms[0] << endl;
+    cout << "nActiveElms[1] = " << nActiveElms[1] << endl;
     cout << "nActiveElms = " << nActiveElms[0] + nActiveElms[1] << endl;
     
     watchSteady.start();

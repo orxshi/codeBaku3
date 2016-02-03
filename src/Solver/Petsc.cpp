@@ -16,11 +16,22 @@ void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vecto
     {
         PetscInt brow = static_cast <int> (floor(gp/bs));
         PetscInt c = brow + gr.n_bou_elm;
+        //PetscInt c = ic[brow];
         PetscInt i = gp % bs;
         
         Cell& cll = gr.cell[c];        
         
         ind[gp-vecLocBeg] = gp;
+        
+        /*if (cll.iBlank == iBlank_t::FIELD)
+        {
+            ind[gp-vecLocBeg] = gp;
+        }
+        else if (cll.iBlank == iBlank_t::FRINGE)
+        {
+            ind[gp-vecLocBeg] = -gp;
+        }*/
+        
         val[gp-vecLocBeg] = cll.R[i];
     }
         
@@ -33,8 +44,28 @@ void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vecto
     for (PetscInt brow=matLocBeg/bs; brow<matLocEnd/bs; ++brow)
     {
         PetscInt c = brow + gr.n_bou_elm;
+        //PetscInt c = ic[brow];
         
         Cell& cll = gr.cell[c];
+        
+        
+        
+        /*PetscInt idxm;
+        PetscInt idxn;
+        
+        if (cll.iBlank == iBlank_t::FIELD)
+        {
+            idxm = brow;
+            idxn = brow;
+        }
+        else if (cll.iBlank == iBlank_t::FRINGE)
+        {
+            idxm = -brow;
+            idxn = -brow;
+        }*/
+        
+        
+        
         PetscInt idxm = brow;
         PetscInt idxn = brow;
         double v[bs*bs];
@@ -47,37 +78,53 @@ void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vecto
             }
         }
         
-        MatSetValuesBlocked (A, 1, &idxm, 1, &idxn, v, INSERT_VALUES);        
+        MatSetValuesBlocked (A, 1, &idxm, 1, &idxn, v, INSERT_VALUES);                
         
         for (int nn=0; nn<cll.nei.size(); ++nn)
         {
             if (cll.nei[nn] >= gr.n_bou_elm)
             {
-                idxn = cll.nei[nn] - gr.n_bou_elm;
-                
-                Face& f = gr.face[cll.face[nn]];
-                if (c == f.nei[0])
+                //if (gr.cell[cll.nei[nn]].iBlank == iBlank_t::FIELD)
                 {
-                    for (int q=0; q<bs; ++q)
+                    /*if (gr.cell[cll.nei[nn]].iBlank == iBlank_t::FIELD)
                     {
-                        for (int w=0; w<bs; ++w)
+                        idxn = brow;
+                    }
+                    else if (gr.cell[cll.nei[nn]].iBlank == iBlank_t::FRINGE)
+                    {
+                        idxn = -brow;
+                    }*/
+                    
+                    
+                
+                    idxn = cll.nei[nn] - gr.n_bou_elm;
+                    //idxn = icn[brow][nn] - gr.n_bou_elm;
+                    //idxn = nn - gr.n_bou_elm;
+                    
+                    Face& f = gr.face[cll.face[nn]];
+                    if (c == f.nei[0])
+                    {
+                        for (int q=0; q<bs; ++q)
                         {
-                            v[q*bs+w] = M1[cll.face[nn]](q,w);
+                            for (int w=0; w<bs; ++w)
+                            {
+                                v[q*bs+w] = M1[cll.face[nn]](q,w);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    for (int q=0; q<bs; ++q)
+                    else
                     {
-                        for (int w=0; w<bs; ++w)
+                        for (int q=0; q<bs; ++q)
                         {
-                            v[q*bs+w] = -M0[cll.face[nn]](q,w);
+                            for (int w=0; w<bs; ++w)
+                            {
+                                v[q*bs+w] = -M0[cll.face[nn]](q,w);
+                            }
                         }
                     }
+                    
+                    MatSetValuesBlocked (A, 1, &idxm, 1, &idxn, v, INSERT_VALUES);
                 }
-                
-                MatSetValuesBlocked (A, 1, &idxm, 1, &idxn, v, INSERT_VALUES);
             }
         }
     }
@@ -108,6 +155,7 @@ void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vecto
     {
         PetscInt brow = static_cast <int> (floor(gp/bs));
         PetscInt c = brow + gr.n_bou_elm;
+        //PetscInt c = ic[brow];
         PetscInt i = gp % bs;        
         Cell& cll = gr.cell[c];
         
@@ -126,4 +174,24 @@ void Solver::Petsc::finalize()
     //free (DX);
     DX = NULL;
     delete [] localSizes;
+    ic.clear();
+}
+
+void Solver::Petsc::IC (Grid& gr)
+{
+    for (int c=gr.n_bou_elm; c<gr.cell.size(); ++c)
+    {
+        if (gr.cell[c].iBlank == iBlank_t::FIELD)
+        {
+            ic.push_back (c);
+            
+            for (int nn=0; nn<gr.cell[c].nei.size(); ++nn)
+            {
+                if (gr.cell[gr.cell[c].nei[nn]].iBlank == iBlank_t::FIELD && gr.cell[c].nei[nn]>=gr.n_bou_elm)
+                {
+                    icn[ic.size()-1].push_back (gr.cell[c].nei[nn]);
+                }
+            }
+        }
+    }
 }

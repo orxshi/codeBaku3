@@ -123,6 +123,8 @@ inline void common (Cell& e, const vector<Face>& face, vector<Cell>& cell)
 
 void Solver::diff_to_cons_prim(Grid& g)
 {
+    //double maxDq = BIG_NEG_NUM;
+
     for (int ic=g.n_bou_elm; ic<g.cell.size(); ++ic)
     {
         Cell& e = g.cell[ic];
@@ -131,8 +133,12 @@ void Solver::diff_to_cons_prim(Grid& g)
         {
             e.cons += e.dQ;
             e.cons_to_prim();
+            
+            //maxDq = max (maxDq,e.dQ[1]);
         }
     }
+    
+    //cout << "maxDq = " << maxDq << endl;
 }
 
 void Solver::set_residual(Grid& g)

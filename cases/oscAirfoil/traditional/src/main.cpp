@@ -62,12 +62,30 @@ int main(int argc, char** argv)
     iblank.treatFieldIslands (grs[1]);
     iblank.treatFringeIslands (grs[0]);
     iblank.treatFringeIslands (grs[1]);
+    iblank.treatVoidAreas (grs[0]);
+    iblank.treatVoidAreas (grs[1]);
     
     grs[0].outAllVTK (0);
     grs[1].outAllVTK (0);
     
+    exit(-2);
+    
+    int nActiveElms[2];
+    nActiveElms[0] = 0;
+    nActiveElms[1] = 0;
+    for (int g=0; g<grs.size(); ++g)
+    {
+        for (const Cell& cll: grs[g].cell)
+        {
+            if (cll.iBlank == iBlank_t::FIELD)
+            {
+                ++nActiveElms[g];
+            }
+        }
+    }
+    
     // solvers
-    array<Solver,2> solver = { Solver(grs[0], "SOLVER-STEADY-AG"), Solver(grs[1], "SOLVER-STEADY-BG") };    
+    array<Solver,2> solver = { Solver(grs[0], "SOLVER-STEADY-AG", grs[0].n_in_elm), Solver(grs[1], "SOLVER-STEADY-BG", grs[1].n_in_elm) };
     solver[0].read ("Solver/solSteady.dat");
     solver[1].read ("Solver/solSteady.dat");
     
@@ -75,19 +93,8 @@ int main(int argc, char** argv)
     SMAirfoil sma (solver[0].dt);
     sma.read ("MovingGrid/smAirfoil.dat");
     
-    int nActiveElms = 0;
-    for (int g=0; g<grs.size(); ++g)
-    {
-        for (const Cell& cll: grs[g].cell)
-        {
-            if (cll.iBlank == iBlank_t::FIELD)
-            {
-                ++nActiveElms;
-            }
-        }
-    }
-    log (mainDir, nActiveElms, "nActiveElms", "");
-    cout << "nActiveElms = " << nActiveElms << endl;
+    log (mainDir, nActiveElms[0] + nActiveElms[1], "nActiveElms", "");
+    cout << "nActiveElms = " << nActiveElms[0] + nActiveElms[1] << endl;
     
     watchSteady.start();
     double err = BIG_POS_NUM;

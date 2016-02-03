@@ -56,19 +56,27 @@ int main(int argc, char** argv)
     iBlank.identify (grs[0], grs[1]);
     iBlank.identify (grs[1], grs[0]);
     
-    //grs[0].outAllVTK (0);
-    //grs[1].outAllVTK (0);
+    grs[0].outAllVTK (0);
+    grs[1].outAllVTK (0);
+    
+    
     
     Grid finalGrid (mainDir, 3);
     
+    
+    
     AFT::aft (grs, finalGrid);    
     
+    finalGrid.outAllVTK (0);
+    
+    exit(-2);
+    
     finalGrid.readInput();
-    finalGrid.leastSquaresCoeffs();    
+    //finalGrid.leastSquaresCoeffs();    
     finalGrid.cellADT.build (finalGrid);
     oscInit.init (finalGrid);
     
-    Solver solSteady (finalGrid, "SOLVER-STEADY");
+    Solver solSteady (finalGrid, "SOLVER-STEADY", finalGrid.n_in_elm);
     solSteady.read ("Solver/solSteady.dat");
 
     // solve steady state
@@ -109,7 +117,7 @@ int main(int argc, char** argv)
         AFT::aft (grs, finalGrid);        
         finalGrid.cellADT.build (finalGrid);        
         finalGrid.readInput();
-        finalGrid.leastSquaresCoeffs();
+        //finalGrid.leastSquaresCoeffs();
         
         if (time == 0.)
         {            
@@ -126,7 +134,7 @@ int main(int argc, char** argv)
             //finalGrid.apply_BCs();
         }
         
-        Solver solOscAirfoil (finalGrid, "SOLVER-OSC-AIRFOIL");
+        Solver solOscAirfoil (finalGrid, "SOLVER-OSC-AIRFOIL", finalGrid.n_in_elm);
         solOscAirfoil.read ("Solver/solOscAirfoil.dat");
         solOscAirfoil.time = time;
         

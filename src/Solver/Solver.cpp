@@ -1,6 +1,6 @@
 #include "Solver.h"
 
-Solver::Solver (Grid& gr, string instanceName) : petsc(gr), roe(gr), gradient (gr), limiter (gr)
+Solver::Solver (Grid& gr, string instanceName, int nActiveElms) : petsc(nActiveElms, gr), roe(gr), gradient (gr), limiter (gr)
 {
     //default    
     tOrder = 2;
@@ -33,7 +33,7 @@ Solver::Solver (Grid& gr, string instanceName) : petsc(gr), roe(gr), gradient (g
 
 
 
-Solver::Petsc::Petsc (Grid& gr)
+Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
 {    
     int nProcs;
 
@@ -49,7 +49,8 @@ Solver::Petsc::Petsc (Grid& gr)
         }
     }*/
     
-    n = gr.n_in_elm;
+    //n = gr.n_in_elm;
+    n = nActiveElms;
     bs = N_VAR;
     vecGlobalSize = n*bs;
     //DX = (double*) malloc (vecGlobalSize*sizeof(double));
@@ -109,6 +110,11 @@ Solver::Petsc::Petsc (Grid& gr)
     }
     
     MPI_Allgatherv (&vecLocalSize, 1, MPI_INT, localSizes, recvcounts, displs, MPI_INT, world);
+    
+    //ic.reserve(n);
+    //icn.reserve(n);
+    
+    //IC (gr);
 }
 
 void Solver::preSolverCheck (const Grid& gr)

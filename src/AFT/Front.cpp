@@ -118,8 +118,8 @@ namespace AFT
             const Point& t0 = points[ it0 ];
             const Point& t1 = points[ it1 ];
             
-            cout << "it0 = " << it0 << endl;
-            cout << "it1 = " << it1 << endl;
+            //cout << "it0 = " << it0 << endl;
+            //cout << "it1 = " << it1 << endl;
                         
             // search existing candidate points
             foundCandPts = srchCandPts (frontFirst, edges, points, pointADT, candPts, (2.*rho), edgeADT, edge01ADT, triangleADT);

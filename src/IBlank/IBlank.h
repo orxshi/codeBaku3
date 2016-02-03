@@ -20,6 +20,7 @@ struct Iblank
     void interpolate (Grid& gr, Gradient& gradient, Grid& ogr);
     void treatFieldIslands (Grid& grAct);
     void treatFringeIslands (Grid& grAct);
+    void treatVoidAreas (Grid& grAct);
 };
 
 #endif	/* IBLANK_H */

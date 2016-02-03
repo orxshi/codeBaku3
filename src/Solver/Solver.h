@@ -36,10 +36,13 @@ struct Solver
         double* DX;                
         int* localSizes;
         int matLocalSize;
+        vector<int> ic;
+        vector<vector<int>> icn;
         
-        Petsc (Grid& gr);
+        Petsc (int nActiveElms, Grid& gr);
         void solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vector <Matrixd<N_VAR,N_VAR>>& M1);
         void finalize();
+        void IC (Grid& gr);
     } petsc;    
     
     int nGaussIter;
@@ -81,7 +84,7 @@ struct Solver
     vector <Matrixd<N_VAR,N_VAR>> M1;
     Roe roe;
     
-    Solver (Grid& gr, string instanceName);
+    Solver (Grid& gr, string instanceName, int nActiveElms);
     
     void expl (Grid& gr); // don't use
     void impl (Grid& gr);

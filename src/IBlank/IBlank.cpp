@@ -461,3 +461,50 @@ void Iblank::treatFringeIslands (Grid& grAct)
         }
     }
 }
+
+void Iblank::treatVoidAreas (Grid& grAct)
+{
+    for (int c=grAct.n_bou_elm; c<grAct.cell.size(); ++c)
+    {        
+        int nFringeNeis = 0;
+    
+        Cell& cll = grAct.cell[c];
+        
+        if (cll.iBlank == iBlank_t::FRINGE)
+        {
+            for (int n:cll.nei)
+            {
+                if (grAct.cell[n].iBlank == iBlank_t::FRINGE)
+                {
+                    ++nFringeNeis;
+                }
+            }
+            
+            if (nFringeNeis == 1)
+            {
+                int iR;                
+            
+                cll.iBlank = iBlank_t::FIELD;
+                
+                if (cll.donor != NULL)
+                {   
+                    for (int r=0; r<cll.donor->receiver.size(); ++r)
+                    {
+                        if (cll.donor->receiver[r] == &cll)
+                        {
+                            cll.donor->receiver.erase(cll.donor->receiver.begin() + r);
+                            break;
+                        }
+                    }
+                    
+                    cll.donor = NULL;
+                }
+                else
+                {
+                    cout << "has no donor" << endl;
+                    exit(-2);
+                }
+            }
+        }
+    }
+}

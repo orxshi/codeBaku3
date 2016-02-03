@@ -1,5 +1,5 @@
 address = ../ADT
-CC = g++ -g
+CC = mpicxx
 CFLAGS = -c -std=c++11 -fpic -O3
 LDFLAGS = -shared
 #LDFLAGS += -L$(address) -Wl,-rpath=$(address)

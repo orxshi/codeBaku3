@@ -648,8 +648,18 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
             M0[iFace] = JL + Aroe;            
             M1[iFace] = JR - Aroe;            
             
-            M0[iFace] = M0[iFace] * 0.5 * mg;            
+            M0[iFace] = M0[iFace] * 0.5 * mg;
             M1[iFace] = M1[iFace] * 0.5 * mg;
+            
+            if (LC.iBlank == iBlank_t::FRINGE)
+            {
+                M0[iFace] = 0.;
+            }
+            
+            if (RC.iBlank == iBlank_t::FRINGE)
+            {
+                M1[iFace] = 0.;
+            }
         }
         else if (bc == BC::SLIP_WALL)
         {

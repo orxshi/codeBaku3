@@ -25,7 +25,7 @@ namespace AFT
         PointADT pointADT;
         PointADT edgeCenterADT;
         CircleADT circleADT;
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
         // this should not be in AFT
         //cout << "Trimming/Re-blanking... " << flush;

@@ -22,6 +22,7 @@ void Solver::getRes (Grid& gr)
                 Cell& cll = gr.cell[ic];
             
                 if (cll.iBlank == iBlank_t::FIELD)
+                //if (cll.iBlank == iBlank_t::FRINGE)
                 {
                     for (int i=0; i<N_VAR; ++i)
                     {

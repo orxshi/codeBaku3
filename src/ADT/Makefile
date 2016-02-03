@@ -1,4 +1,4 @@
-CC = g++ -g
+CC = mpicxx
 CFLAGS = -c -std=c++11 -fpic -O3
 LDFLAGS = -shared
 SOURCES=ADT.cpp	

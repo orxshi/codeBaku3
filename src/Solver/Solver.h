@@ -59,8 +59,9 @@ struct Solver
     double dt;
     double finalTime;
     double tol;    
-    double time;
-    double aveRes;
+    double time;    
+    array<double,N_VAR> maxRes;
+    array<double,N_VAR> rmsRes;
     double eTimeImpl;
     double eTimeInne;
     bool steady;
@@ -89,7 +90,7 @@ struct Solver
     void expl (Grid& gr); // don't use
     void impl (Grid& gr);
     void interflux (Grid& gr);
-    void gauss_seidel (Grid& g);
+    //void gauss_seidel (Grid& g);
     void updateVars (Grid& gr);
     double setExpRes (Grid& gr); // dont use
     //void preSolver(Grid& gr);
@@ -99,7 +100,8 @@ struct Solver
     void read (string fileName);
     void set_residual (Grid& g); // don't use
     void diff_to_cons_prim(Grid& g);
-    void getRes (Grid& gr);    
+    void getMaxRes (Grid& gr);    
+    void getRmsRes (Grid& gr);
     void printTimeInne();
     void printTimeImpl();
     

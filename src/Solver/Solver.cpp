@@ -181,3 +181,23 @@ void Solver::read (string fileName)
 
     in.close();
 }
+
+void Solver::diff_to_cons_prim(Grid& g)
+{
+    //double maxDq = BIG_NEG_NUM;
+
+    for (int ic=g.n_bou_elm; ic<g.cell.size(); ++ic)
+    {
+        Cell& e = g.cell[ic];
+        
+        if (e.iBlank == iBlank_t::FIELD)
+        {
+            e.cons += e.dQ;
+            e.cons_to_prim();
+            
+            //maxDq = max (maxDq,e.dQ[1]);
+        }
+    }
+    
+    //cout << "maxDq = " << maxDq << endl;
+}

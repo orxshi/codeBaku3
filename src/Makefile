@@ -17,7 +17,6 @@ SOURCES=BoundaryConditions/BoundaryConditions.cpp\
         InterFlux/Roe/Roe.cpp\
         Matrix5/Operators.cpp\
         Output/Output.cpp\
-        Solver/GaussSeidel.cpp\
         Solver/Solver.cpp\
         Solver/Explicit.cpp\
         Solver/Implicit.cpp\

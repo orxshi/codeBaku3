@@ -90,7 +90,12 @@ void Solver::outRes (string fileName)
         out << left << setw(s) << glo_nTimeStep;
         out << setw(b) << time;
         out << setw(s) << nTimeStep;
-        out << setw(b) << aveRes;
+        
+        for (int i=0; i<N_VAR; ++i)
+        {
+            out << setw(b) << rmsRes[i];
+        }
+        
         out << endl;
     }
     else

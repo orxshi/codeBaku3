@@ -7,7 +7,7 @@ include ${PETSC_DIR}/lib/petsc/conf/variables
 #include ${PETSC_DIR}/lib/petsc/conf/test
 INC1=${PETSC_DIR}/include
 INC2=${PETSC_DIR}/$(PETSC_ARCH)/include
-CC = g++ -g
+CC = mpicxx
 CFLAGS = -c -std=c++11 -O3 -I$(INC1) -I$(INC2)
 LDFLAGS = -L$(address1) -Wl,-rpath=$(address1)
 LDFLAGS += -L$(address2) -Wl,-rpath=$(address2)

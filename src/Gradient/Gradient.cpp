@@ -113,7 +113,7 @@ void Gradient::leastSquaresCoeffs (Grid& gr)
         r_23 = (r_23 - r_12 * r_13) / r_22;
         r_33 = sqrt (r_33 - pow(r_13,2.) - pow(r_23,2.));
         
-        for (const int f: gr.cell[c].nei)
+        for (const int f: cll.nei)
         {
             d = gr.cell[f].cnt - cll.cnt;
 
@@ -157,6 +157,8 @@ void Gradient::leastSquaresGrad (Grid& gr)
                 grad[ic-gr.n_bou_elm][n][0] += Wx[ic-gr.n_bou_elm][ff] * tempf;
                 grad[ic-gr.n_bou_elm][n][1] += Wy[ic-gr.n_bou_elm][ff] * tempf;
                 grad[ic-gr.n_bou_elm][n][2] += Wz[ic-gr.n_bou_elm][ff] * tempf;
+                
+                
             }
             
             ++ff;

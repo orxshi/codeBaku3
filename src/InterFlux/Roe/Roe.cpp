@@ -198,7 +198,9 @@ void setStates(Vector<N_VAR>& primL, Vector<N_VAR>& consL, Vector<N_VAR>& primR,
         {
             for (int i=0; i<N_VAR; ++i)
             {                
-                primL[i] = LC.prim[i] + limiter.ksiV[iLC-gr.n_bou_elm][i] * dotP(gradient.grad[iLC-gr.n_bou_elm][i], disL);                
+                primL[i] = LC.prim[i] + limiter.ksiV[iLC-gr.n_bou_elm][i] * dotP(gradient.grad[iLC-gr.n_bou_elm][i], disL);  
+                
+                if ( isnan(primL[i]) ) { cout << "cll.RL " << i << " is NAN in Solver::getRes()" << endl; exit(-2); }
             }
         }
         else
@@ -213,7 +215,9 @@ void setStates(Vector<N_VAR>& primL, Vector<N_VAR>& consL, Vector<N_VAR>& primR,
         {
             for (int i=0; i<N_VAR; ++i)
             {                
-                primR[i] = RC.prim[i] + limiter.ksiV[iRC-gr.n_bou_elm][i] * dotP(gradient.grad[iRC-gr.n_bou_elm][i], disR);                
+                primR[i] = RC.prim[i] + limiter.ksiV[iRC-gr.n_bou_elm][i] * dotP(gradient.grad[iRC-gr.n_bou_elm][i], disR);  
+                
+                if ( isnan(primR[i]) ) { cout << "cll.RR " << i << " is NAN in Solver::getRes()" << endl; exit(-2); }
             }
         }
         else
@@ -408,6 +412,45 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
             ql  = u*lx + v*ly + w*lz;
             qm  = u*mx + v*my + w*mz;
             asq = pow(a,2);
+            
+            
+            
+            if ( isnan(a) ){
+            cout << "H = " << H << endl;
+            cout << "k = " << k << endl;
+            cout << "HL = " << HL << endl;
+            cout << "HR = " << HR << endl;
+            cout << "ER = " << ER << endl;
+            cout << "EL = " << EL << endl;
+            cout << "pR = " << pR << endl;
+            cout << "pL = " << pL << endl;
+            cout << "rhoR = " << rhoR << endl;
+            cout << "rhoL = " << rhoL << endl;
+            cout << "limiter.ksiV[iLC-gr.n_bou_elm][0] = " << limiter.ksiV[iLC-gr.n_bou_elm][0] << endl;
+            cout << "limiter.ksiV[iLC-gr.n_bou_elm][1] = " << limiter.ksiV[iLC-gr.n_bou_elm][1] << endl;
+            cout << "limiter.ksiV[iLC-gr.n_bou_elm][2] = " << limiter.ksiV[iLC-gr.n_bou_elm][2] << endl;
+            cout << "limiter.ksiV[iLC-gr.n_bou_elm][3] = " << limiter.ksiV[iLC-gr.n_bou_elm][3] << endl;
+            cout << "limiter.ksiV[iLC-gr.n_bou_elm][4] = " << limiter.ksiV[iLC-gr.n_bou_elm][4] << endl;
+            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][0], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][0], disL) << endl;
+            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][1], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][1], disL)<< endl;
+            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][2], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][2], disL) << endl;
+            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][3], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][3], disL) << endl;
+            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][4], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][4], disL)<< endl;
+            cout << "LC.prim[0] = " << LC.prim[0] << endl;
+            cout << "LC.prim[1] = " << LC.prim[1] << endl;
+            cout << "LC.prim[2] = " << LC.prim[2] << endl;
+            cout << "LC.prim[3] = " << LC.prim[3] << endl;
+            cout << "LC.prim[4] = " << LC.prim[4] << endl;
+            cout << "RC.prim[0] = " << RC.prim[0] << endl;
+            cout << "RC.prim[1] = " << RC.prim[1] << endl;
+            cout << "RC.prim[2] = " << RC.prim[2] << endl;
+            cout << "RC.prim[3] = " << RC.prim[3] << endl;
+            cout << "RC.prim[4] = " << RC.prim[4] << endl;
+            exit(-2); }
+            
+            
+            
+            
 
             // Wave strengths
             drho = rhoR - rhoL;
@@ -428,6 +471,10 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
             ws[2] = fabs(qn + a - vb);
             ws[3] = fabs(qn - vb);
             ws[4] = fabs(qn - vb);
+            
+            
+            
+            
             
             // Right eigenvectors
             R(0,0) = 1.;
@@ -500,6 +547,10 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
                 {
                     //diss[i] += ws[j] * LdU[j] * R[i][j];
                     diss[i] += ws[j] * LdU[j] * R(i,j);
+                    
+                    
+                    
+                    
                 }
             }
 
@@ -520,7 +571,13 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
             for (int i=0; i<N_VAR; ++i)
             {
                 flux[iFace][i] = 0.5 * (fluxL[i] + fluxR[i] - diss[i]) * mg;
+                
+                
+                
             }
+            
+            
+            
 
             vel[iFace] = fabs(qn-vb) + a;
             
@@ -763,7 +820,9 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
             {
                 for (int i=0; i<N_VAR; ++i)
                 {
-                    cll.R[i] -= flux[f][i];                    
+                    cll.R[i] -= flux[f][i];                   
+                    
+                    
                 }                
                 
                 cll.D = cll.D + M0[f];

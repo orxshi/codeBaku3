@@ -31,7 +31,9 @@ void Solver::impl (Grid& gr)
         switch (linearSolverType)
         {
             case 1:
-                gauss_seidel (gr); // only fields
+                //gauss_seidel (gr); // only fields
+                cout << "this solver type is supported any more" << endl;
+                exit(-2);
                 break;
             case 2:                
                 petsc.solveAxb (gr, M0, M1);                
@@ -43,7 +45,8 @@ void Solver::impl (Grid& gr)
         }
         
         diff_to_cons_prim (gr); // only fields
-        getRes (gr); // only fields
+        getMaxRes (gr); // only fields
+        getRmsRes (gr); // only fields
         
         if (rank == MASTER_RANK) { outRes(gr.outputDir); }
         gr.apply_BCs();
@@ -52,10 +55,11 @@ void Solver::impl (Grid& gr)
         {
             cout << left << setw(10) << fixed << setprecision(5) << time;
             cout << setw(10) << nTimeStep;
-            cout << scientific << setprecision(3) << aveRes << endl;            
+            cout << setw(10) << scientific << setprecision(3) << rmsRes[0];
+            cout << setw(10) << scientific << setprecision(3) << maxRes[0] << endl;
         }        
         
-        if (fabs(aveRes) < tol) { break; }
+        if (fabs(rmsRes[0]) < tol) { break; }
         
         ++glo_nTimeStep;
         

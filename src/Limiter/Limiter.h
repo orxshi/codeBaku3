@@ -51,6 +51,7 @@ struct Limiter
     void bj (Grid& gr, Gradient& gradient);
     void venka (Grid& gr, Gradient& gradient);
     void initParallelVars (Grid& gr);
+    void minMod(const array<Vector<N_DIM>, N_VAR>& gradL, array<Vector<N_DIM>, N_VAR>& gradR, array<Vector<N_DIM>, N_VAR>& grad);
 };
 
 #endif	/* LIMITER_H */

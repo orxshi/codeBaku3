@@ -85,6 +85,7 @@ void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vecto
             if (cll.nei[nn] >= gr.n_bou_elm)
             {
                 //if (gr.cell[cll.nei[nn]].iBlank == iBlank_t::FIELD)
+                if (true)
                 {
                     /*if (gr.cell[cll.nei[nn]].iBlank == iBlank_t::FIELD)
                     {
@@ -134,6 +135,16 @@ void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vecto
     
     KSPSolve (ksp, b, x);
     
+    /*double* bb = NULL;
+    bb = new double [5];
+    VecGetArray (b, &bb);
+    cout << bb[0] << endl;
+    cout << bb[1] << endl;
+    cout << bb[2] << endl;
+    cout << bb[3] << endl;
+    cout << bb[4] << endl;
+    VecRestoreArray (b, &bb);*/
+    
     int recvcounts[nProcs];
     int displs[nProcs];
     displs[0] = 0;
@@ -160,7 +171,15 @@ void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vecto
         Cell& cll = gr.cell[c];
         
         cll.dQ[i] = DX[gp];
+        
+        
+        /*if (c == gr.n_bou_elm && i == 3)
+        {
+            cout << "dx[gp] = " << dx[gp] << endl;
+        }*/
     }
+    
+    
 }
 
 void Solver::Petsc::finalize()

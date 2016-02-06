@@ -7,12 +7,14 @@ void Solver::getMaxRes (Grid& gr)
     maxRes.fill(BIG_NEG_NUM); // for max criterion
     
     // calculate cll.R with updated values. updateVars should be called before this
-    if (sOrder == 2)
+    /*if (sOrder == 2)
     {
         gradient.leastSquaresGrad (gr);
     }
     
     roe.roeflx (gr, limiter, M0, M1, gradient);
+    cout << "called roe in maxres" << endl;*/
+    //cin.ignore();
     
     if (tOrder == 1)
     {
@@ -27,7 +29,8 @@ void Solver::getMaxRes (Grid& gr)
                 {
                     for (int i=0; i<N_VAR; ++i)
                     {
-                        double RHS = cll.R[i];
+                        //double RHS = cll.R[i];
+                        double RHS = cll.dQ[i];
                         maxRes[i] = max( fabs(RHS), maxRes[i] );
                         
                         
@@ -81,12 +84,14 @@ void Solver::getRmsRes (Grid& gr)
     rmsRes.fill(0.);
     int nField = 0;
     
-    if (sOrder == 2)
+    /*if (sOrder == 2)
     {
         gradient.leastSquaresGrad (gr);
     }
     
     roe.roeflx (gr, limiter, M0, M1, gradient);
+    cout << "called roe in rmsres" << endl;*/
+    //cin.ignore();
     
     if (tOrder == 1)
     {
@@ -100,7 +105,8 @@ void Solver::getRmsRes (Grid& gr)
                 {
                     for (int i=0; i<N_VAR; ++i)
                     {
-                        double RHS = cll.R[i];
+                        //double RHS = cll.R[i];
+                        double RHS = cll.dQ[i];
                         rmsRes[i] += pow(RHS,2.);
                         
                         

@@ -244,7 +244,7 @@ void Limiter::venka (Grid& gr, Gradient& gradient)
 
     Vector<N_VAR> ksiF;
     int icc;
-    double K = 1e3;
+    double K = 0.0001;
     
     for (int ic=displs[rank]; ic<displs[rank]+localSize; ++ic)
     {
@@ -299,7 +299,7 @@ void Limiter::venka (Grid& gr, Gradient& gradient)
     MPI_Allgatherv (MPI_IN_PLACE, localSizesNVAR[rank], MPI_DOUBLE, &ksiV[0][0], localSizesNVAR, displsNVAR, MPI_DOUBLE, MPI_COMM_WORLD);
 }
 
-void minMod(const Vector2D<3,N_VAR>& gradL, const Vector2D<3,N_VAR>& gradR, Vector2D<3,N_VAR>& grad)
+void Limiter::minMod(const array<Vector<N_DIM>, N_VAR>& gradL, array<Vector<N_DIM>, N_VAR>& gradR, array<Vector<N_DIM>, N_VAR>& grad)
 {
     // http://www.cfdbooks.com/cfdcodes/oned_euler_v1.f90
 
@@ -328,4 +328,8 @@ void minMod(const Vector2D<3,N_VAR>& gradL, const Vector2D<3,N_VAR>& gradR, Vect
             }
         }
     }
+    
+    /*cout << "gradL[0][0] in limiter = " << gradL[0][0] << endl;
+    cout << "gradR[0][0] in limiter = " << gradR[0][0] << endl;
+    cout << "grad[0][0] in limiter = " << grad[0][0] << endl;*/
 }

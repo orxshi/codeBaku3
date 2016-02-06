@@ -196,6 +196,10 @@ void Solver::diff_to_cons_prim(Grid& g)
             e.cons_to_prim();
             
             //maxDq = max (maxDq,e.dQ[1]);
+            /*if (ic == g.n_bou_elm)
+            {
+                cout << "e.dQ[3] = " << e.dQ[3] << endl;
+            }*/
         }
     }
     

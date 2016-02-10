@@ -31,8 +31,6 @@ Solver::Solver (Grid& gr, string instanceName, int nActiveElms) : petsc(nActiveE
     M1.resize (gr.face.size());
 }
 
-
-
 Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
 {    
     int nProcs;
@@ -119,8 +117,6 @@ Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
 
 void Solver::preSolverCheck (const Grid& gr)
 {
-    //string reason = "nothing";
-    
     for (const Cell& cll: gr.cell)
     {
         if (cll.iBlank == iBlank_t::UNDEFINED)

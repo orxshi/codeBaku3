@@ -161,3 +161,73 @@ void Solver::getRmsRes (Grid& gr)
         if ( isinf(rmsRes[i]) ) { cout << "rmsRes " << i << " is INF in Solver::getRes()" << endl; exit(-2); }
     }
 }
+
+void Solver::getResiduals (Grid& gr)
+{
+    rmsRes.fill(0.);
+    maxRes.fill(BIG_NEG_NUM);
+    int nField = 0;
+    
+    if (tOrder == 1)
+    {
+        if (steady)
+        {
+            for (int ic=gr.n_bou_elm; ic<gr.cell.size(); ++ic)
+            {
+                Cell& cll = gr.cell[ic];
+            
+                if (cll.iBlank == iBlank_t::FIELD)
+                {
+                    for (int i=0; i<N_VAR; ++i)
+                    {
+                        double RHS = cll.R[i];
+                        rmsRes[i] += pow(RHS,2.);
+                        maxRes[i] = max( fabs(RHS), maxRes[i] );
+                    }
+                    
+                    ++nField;
+                }
+            }
+        }
+        else
+        {
+            for (int ic=gr.n_bou_elm; ic<gr.cell.size(); ++ic)
+            {
+                Cell& cll = gr.cell[ic];
+            
+                if (cll.iBlank == iBlank_t::FIELD)
+                {
+                    for (int i=0; i<N_VAR; ++i)
+                    {
+                        double LHS = (cll.cons[i] - cll.old_cons[i]) * cll.vol / dt;
+                        double RHS = cll.R[i];
+
+                        rmsRes[i] += pow(LHS - RHS, 2.);
+                        maxRes[i] = max( fabs(LHS - RHS), maxRes[i] );
+                    }
+                    
+                    ++nField;
+                }
+            }
+        }
+    }
+    else
+    {
+        cout << "only tOrder=1 is supported in Solver::getResiduals (Grid& gr)" << endl;
+        exit(-2);
+    }
+    
+    for (int i=0; i<N_VAR; ++i)
+    {
+        rmsRes[i] /= nField;
+        rmsRes[i] = sqrt (rmsRes[i]);
+    }
+    
+    for (int i=0; i<N_VAR; ++i)
+    {
+        if ( isnan(rmsRes[i]) ) { cout << "rmsRes " << i << " is NAN in Solver::getResiduals()" << endl; exit(-2); }
+        if ( isnan(maxRes[i]) ) { cout << "maxRes " << i << " is NAN in Solver::getResiduals()" << endl; exit(-2); }
+        if ( isinf(rmsRes[i]) ) { cout << "rmsRes " << i << " is INF in Solver::getResiduals()" << endl; exit(-2); }
+        if ( isinf(maxRes[i]) ) { cout << "rmsRes " << i << " is INF in Solver::getResiduals()" << endl; exit(-2); }
+    }
+}

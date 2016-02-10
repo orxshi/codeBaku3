@@ -26,12 +26,12 @@ int main(int argc, char** argv)
     string mainDir = createOutputDir();
     
     // background grid
-    Grid bg (mainDir, 0);
+    Grid bg (mainDir, 1);
     bg.read_grid();
     bg.set_grid();    
     
     // airfoil grid
-    Grid ag (mainDir, 1);
+    Grid ag (mainDir, 0);
     ag.read_grid();
     ag.set_grid();    
     
@@ -47,19 +47,31 @@ int main(int argc, char** argv)
     grs.push_back(move(ag));
     
     // set wall distances
-    grs[0].setWallDistance(2);
-    grs[1].setWallDistance(3);
+    grs[0].setWallDistance(3);
+    grs[1].setWallDistance(2);
     
     grs[0].cellADT.build (grs[0]);
     grs[1].cellADT.build (grs[1]);
-    Iblank iBlank;
+    
+    /*Iblank iBlank;
     iBlank.identify (grs[0], grs[1]);
-    iBlank.identify (grs[1], grs[0]);
+    iBlank.identify (grs[1], grs[0]);*/
+    // hole cutting
+    Iblank iblank;
+    iblank.identify (grs[0], grs[1]);
+    iblank.identify (grs[1], grs[0]);    
+    iblank.treatFieldIslands (grs[0]);
+    iblank.treatFieldIslands (grs[1]);
+    iblank.treatFringeIslands (grs[0]);
+    iblank.treatFringeIslands (grs[1]);
+    iblank.treatVoidAreas (grs[0]);
+    iblank.treatVoidAreas (grs[1]);
+    
     
     grs[0].outAllVTK (0);
     grs[1].outAllVTK (0);
     
-    
+    //exit(-2);
     
     Grid finalGrid (mainDir, 3);
     

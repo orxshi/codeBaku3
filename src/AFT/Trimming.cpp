@@ -55,6 +55,38 @@ void Grid::trimWhoHasTrimNeighbor (int threshold)
     }
 }
 
+void Grid::trimWhoHasTrimNeighbor2 (int threshold)
+{
+    int counter;
+    
+    for (int c=n_bou_elm; c<cell.size(); ++c)
+    {
+        Cell& cll = cell[c];
+        
+        if (cll.iBlank == iBlank_t::FIELD)
+        {
+            counter = 0;
+            
+            for (const int n: cll.nei)
+            {
+                const Cell& nei = cell[n];
+                
+                if (nei.trim == true && nei.iBlank == iBlank_t::FIELD && nei.nTrims == 1)
+                {
+                    ++counter;
+                    
+                    if (counter == threshold)
+                    {
+                        cll.trim = true;
+                        ++cll.nTrims;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Grid::trimToUntrim (int crt)
 {
     int counter;

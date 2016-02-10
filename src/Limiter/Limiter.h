@@ -27,8 +27,8 @@ using std::vector;
 struct Limiter
 {
     int type;
-    // minmod = 0
-    // Van Albada = 1
+    // none = 0
+    // minmod = 1
     // bj = 2
     // venka = 3
     vector<vector<double>> ksiBJ;

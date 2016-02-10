@@ -56,27 +56,27 @@ int main(int argc, char** argv)
     
     // hole cutting
     Iblank iblank;
-    /*iblank.identify (grs[0], grs[1]);
+    iblank.identify (grs[0], grs[1]);
     iblank.identify (grs[1], grs[0]);
     iblank.treatFieldIslands (grs[0]);
     iblank.treatFieldIslands (grs[1]);
     iblank.treatFringeIslands (grs[0]);
     iblank.treatFringeIslands (grs[1]);
     iblank.treatVoidAreas (grs[0]);
-    iblank.treatVoidAreas (grs[1]);*/
+    iblank.treatVoidAreas (grs[1]);
     
-    for (int g=0; g<grs.size(); ++g)
+    /*for (int g=0; g<grs.size(); ++g)
     {
         for (int c=grs[g].n_bou_elm; c<grs[g].cell.size(); ++c)
         {
             grs[g].cell[c].iBlank = iBlank_t::FIELD;
         }
-    }
+    }*/
     
     grs[0].outAllVTK (0);
     grs[1].outAllVTK (0);
     
-    
+    exit (-2);
     
     int nActiveElms[2];
     nActiveElms[0] = 0;
@@ -123,8 +123,9 @@ int main(int argc, char** argv)
             //grs[1-g].interpolate();
             sma.getAllFaceVelocities (grs[1-g]);
             
-            solver[1-g].getRes (grs[1-g]);
-            err = solver[1-g].aveRes;
+            //solver[1-g].getRes (grs[1-g]);
+            solver[1-g].getResiduals (grs[1-g]);
+            err = solver[1-g].rmsRes[0];
             //err = solver[1-g].setExpRes (grs[1-g]);
         }
         

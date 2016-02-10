@@ -39,7 +39,7 @@ struct Cell
     vector<Cell*> receiver;
     iBlank_t iBlank;
     int belonging;
-    int nTrims;
+    int nTrims;    
     int nVertices;
     int nFaces;
     vector <int> nei;
@@ -53,7 +53,8 @@ struct Cell
     Vector<N_VAR> prim, cons, old_cons, oldold_cons;
     Vector<N_VAR> resInner, resOuter;
     Matrixd<N_VAR, N_VAR> D;
-    bool trim;
+    bool trim; 
+    bool trim2;
     bool newlyCreated;
     bool ghost;
     Vector<3> cnt;

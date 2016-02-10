@@ -244,7 +244,8 @@ void Limiter::venka (Grid& gr, Gradient& gradient)
 
     Vector<N_VAR> ksiF;
     int icc;
-    double K = 0.0001;
+    double K = 50000;
+    // K >> 0 --> no limiter
     
     for (int ic=displs[rank]; ic<displs[rank]+localSize; ++ic)
     {

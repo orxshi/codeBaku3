@@ -25,14 +25,16 @@ namespace AFT
         PointADT pointADT;
         PointADT edgeCenterADT;
         CircleADT circleADT;
-        cout << "done!" << endl;
+        //cout << "done!" << endl;
         
         // this should not be in AFT
         //cout << "Trimming/Re-blanking... " << flush;
         gr[0].trimWhoHasFringeNeighbor();
         gr[1].trimWhoHasFringeNeighbor();
-        gr[0].trimWhoHasTrimNeighbor (3);
-        gr[1].trimWhoHasTrimNeighbor (2);
+        gr[0].trimWhoHasTrimNeighbor (2);
+        gr[1].trimWhoHasTrimNeighbor (3);
+        gr[0].trimWhoHasTrimNeighbor (2);
+        gr[1].trimWhoHasTrimNeighbor (3);
         //cout << "done!" << endl;
         
         // this too
@@ -42,6 +44,8 @@ namespace AFT
         gr[0].outAllVTK(0);
         gr[1].outAllVTK(0);
         //cout << "done!" << endl;
+        
+        exit(-2);
      
         //cout << "Preparing... " << flush;
         setPointsEdges (gr, points, edges, edgeCenters, newGridId);
@@ -70,7 +74,7 @@ namespace AFT
         pointADT.build (points);
         edgeCenterADT.build (edgeCenters);
         circleADT.build (edgeADT);
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
         //cout << "Exporting to GMSH... " << flush;
         exportToGMSH (points, mesh0Edges, mesh1Edges, gr[0].mainDir);

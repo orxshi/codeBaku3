@@ -3,9 +3,7 @@
 Roe::Roe (Grid& gr)
 {
     vel.resize (gr.face.size());
-    flux.resize (gr.face.size());
-    //M0.resize (gr.face.size());
-    //M1.resize (gr.face.size());
+    flux.resize (gr.face.size());    
 
     initParallelVars (gr);
 }
@@ -118,50 +116,22 @@ Matrixd<N_VAR,N_VAR> jacob(const Vector<N_VAR>& q, const CVector& n, double vbn)
     return A;
 }
 
-void setStates(Vector<N_VAR>& primL, Vector<N_VAR>& consL, Vector<N_VAR>& primR, Vector<N_VAR>& consR, const Cell& LC, const Cell& RC, const CVector& disL, const CVector& disR,
+void setStates (Vector<N_VAR>& primL, Vector<N_VAR>& consL, Vector<N_VAR>& primR, Vector<N_VAR>& consR, const Cell& LC, const Cell& RC, const CVector& disL, const CVector& disR,
                const CVector& rL, const CVector& rR, int iLC, int iRC, Limiter& limiter, Grid& gr, Gradient& gradient)
 {
-    double k, ie;
-    array<Vector<N_DIM>, N_VAR> grad;
-    grad[0].fill(0.);
-    grad[1].fill(0.);
-    grad[2].fill(0.);
-    grad[3].fill(0.);
-    grad[4].fill(0.);
-    
-    //-----------------------------------------------------------------------
-    
-    if (iLC >= gr.n_bou_elm && iRC >= gr.n_bou_elm)
-    {
-        limiter.minMod(gradient.grad[iLC-gr.n_bou_elm], gradient.grad[iRC-gr.n_bou_elm], grad);
-    }
-    
-    
-    
-    /*cout << "LC.grad[0][0] = " << gradient.grad[iLC-gr.n_bou_elm][0][0] << endl;
-    cout << "RC.grad[0][0] = " << gradient.grad[iRC-gr.n_bou_elm][0][0] << endl;
-    cout << "grad[0][0] = " << grad[0][0] << endl;*/
-    
     for (int i=0; i<N_VAR; ++i)
     {
-        primL[i] = LC.prim[i] + dotP(grad[i], disL);
-        primR[i] = RC.prim[i] + dotP(grad[i], disR);
+        primL[i] = LC.prim[i];
+        primR[i] = RC.prim[i];
     }
     
-    /*if (limiter.type == 0)
+    if (limiter.type == 0) // no limiter
     {
         if (iLC >= gr.n_bou_elm)
         {
             for (int i=0; i<N_VAR; ++i)
             {                
-                primL[i] = LC.prim[i] + dotP(gradient.grad[iLC-gr.n_bou_elm][i], disL);
-            }
-        }
-        else
-        {
-            for (int i=0; i<N_VAR; ++i)
-            {
-                primL[i] = LC.prim[i];
+                primL[i] += dotP(gradient.grad[iLC-gr.n_bou_elm][i], disL);
             }
         }
         
@@ -169,31 +139,38 @@ void setStates(Vector<N_VAR>& primL, Vector<N_VAR>& consL, Vector<N_VAR>& primR,
         {
             for (int i=0; i<N_VAR; ++i)
             {                
-                primR[i] = RC.prim[i] + dotP(gradient.grad[iRC-gr.n_bou_elm][i], disR);
+                primR[i] += dotP(gradient.grad[iRC-gr.n_bou_elm][i], disR);
             }
         }
-        else
+        
+    }
+    else if (limiter.type == 1) // minmod
+    {
+        array<Vector<N_DIM>, N_VAR> grad;
+        grad[0].fill(0.);
+        grad[1].fill(0.);
+        grad[2].fill(0.);
+        grad[3].fill(0.);
+        grad[4].fill(0.);
+        
+        if (iLC >= gr.n_bou_elm && iRC >= gr.n_bou_elm)
         {
+            limiter.minMod (gradient.grad[iLC-gr.n_bou_elm], gradient.grad[iRC-gr.n_bou_elm], grad);
+            
             for (int i=0; i<N_VAR; ++i)
             {
-                primR[i] = RC.prim[i];
+                primL[i] += dotP (grad[i], disL);
+                primR[i] += dotP (grad[i], disR);
             }
         }
     }
-    else if (limiter.type == 2)
+    else if (limiter.type == 2) // bj
     {
         if (iLC >= gr.n_bou_elm)
         {
             for (int i=0; i<N_VAR; ++i)
             {                
-                primL[i] = LC.prim[i] + limiter.ksiBJ[iLC-gr.n_bou_elm][i] * dotP(gradient.grad[iLC-gr.n_bou_elm][i], disL);
-            }
-        }
-        else
-        {
-            for (int i=0; i<N_VAR; ++i)
-            {
-                primL[i] = LC.prim[i];
+                primL[i] += limiter.ksiBJ[iLC-gr.n_bou_elm][i] * dotP(gradient.grad[iLC-gr.n_bou_elm][i], disL);
             }
         }
         
@@ -201,34 +178,17 @@ void setStates(Vector<N_VAR>& primL, Vector<N_VAR>& consL, Vector<N_VAR>& primR,
         {
             for (int i=0; i<N_VAR; ++i)
             {                
-                primR[i] = RC.prim[i] + limiter.ksiBJ[iRC-gr.n_bou_elm][i] * dotP(gradient.grad[iRC-gr.n_bou_elm][i], disR);
-            }
-        }
-        else
-        {
-            for (int i=0; i<N_VAR; ++i)
-            {
-                primR[i] = RC.prim[i];
+                primR[i] += limiter.ksiBJ[iRC-gr.n_bou_elm][i] * dotP(gradient.grad[iRC-gr.n_bou_elm][i], disR);
             }
         }
     }
-    else if (limiter.type == 3)
+    else if (limiter.type == 3) // venka
     {
         if (iLC >= gr.n_bou_elm)
         {
             for (int i=0; i<N_VAR; ++i)
             {                
-                primL[i] = LC.prim[i] + limiter.ksiV[iLC-gr.n_bou_elm][i] * dotP(gradient.grad[iLC-gr.n_bou_elm][i], disL);  
-                //primL[i] = LC.prim[i];  
-                
-                if ( isnan(primL[i]) ) { cout << "cll.RL " << i << " is NAN in Solver::getRes()" << endl; exit(-2); }
-            }
-        }
-        else
-        {
-            for (int i=0; i<N_VAR; ++i)
-            {
-                primL[i] = LC.prim[i];
+                primL[i] += limiter.ksiV[iLC-gr.n_bou_elm][i] * dotP(gradient.grad[iLC-gr.n_bou_elm][i], disL);  
             }
         }
         
@@ -236,23 +196,10 @@ void setStates(Vector<N_VAR>& primL, Vector<N_VAR>& consL, Vector<N_VAR>& primR,
         {
             for (int i=0; i<N_VAR; ++i)
             {                
-                primR[i] = RC.prim[i] + limiter.ksiV[iRC-gr.n_bou_elm][i] * dotP(gradient.grad[iRC-gr.n_bou_elm][i], disR);  //
-                //primR[i] = RC.prim[i];  
-                
-                if ( isnan(dotP(gradient.grad[iRC-gr.n_bou_elm][i], disR)) ) { cout << "cll.RR " << iRC-gr.n_bou_elm << " is NAN in Solver::getRes()" << endl; exit(-2); }
+                primR[i] += limiter.ksiV[iRC-gr.n_bou_elm][i] * dotP(gradient.grad[iRC-gr.n_bou_elm][i], disR);
             }
         }
-        else
-        {
-            for (int i=0; i<N_VAR; ++i)
-            {
-                primR[i] = RC.prim[i];
-            }
-        }
-    }*/
-    
-    
-    
+    }
     
     //-----------------------------------------------------------------------
     
@@ -261,8 +208,8 @@ void setStates(Vector<N_VAR>& primL, Vector<N_VAR>& consL, Vector<N_VAR>& primR,
     consL[2] = primL[0] * primL[2];
     consL[3] = primL[0] * primL[3];
 
-    k = 0.5 * ( pow(primL[1],2) + pow(primL[2],2) + pow(primL[3],2) );
-    ie = primL[4] / ( (GAMMA-1.) * primL[0] );
+    double k = 0.5 * ( pow(primL[1],2) + pow(primL[2],2) + pow(primL[3],2) );
+    double ie = primL[4] / ( (GAMMA-1.) * primL[0] );
 
     consL[4] = primL[0] * (k + ie);
     
@@ -385,8 +332,6 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
         disR = face.cnt - RC.cnt;
         
         setStates (primL, consL, primR, consR, LC, RC, disL, disR, LC.cnt, RC.cnt, iLC, iRC, limiter, gr, gradient);
-        
-        
 
         // Left state
         rhoL = primL[0];
@@ -419,8 +364,6 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
         HR   = (ER + pR) / rhoR;
 
         vb = vbx*nx + vby*ny + vbz*nz;
-        
-        
 
         if (boutype == face_t::INTERIOR || bc == BC::DIRICHLET)
         {
@@ -437,95 +380,6 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
             ql  = u*lx + v*ly + w*lz;
             qm  = u*mx + v*my + w*mz;
             asq = pow(a,2);
-            
-            
-            
-            
-            /*if (iFace == 2180)
-        {
-        
-        cout << "iFace = " << iFace << endl;
-        cout << "iLC = " << iLC << endl;
-        cout << "iRC = " << iRC << endl;
-        cout << "LC.prim[0] = " << LC.prim[0] << endl;
-        cout << "LC.prim[1] = " << LC.prim[0] << endl;
-        cout << "LC.prim[2] = " << LC.prim[0] << endl;
-        cout << "LC.prim[3] = " << LC.prim[0] << endl;
-        cout << "LC.prim[4] = " << LC.prim[0] << endl;
-        cout << "RC.prim[0] = " << RC.prim[0] << endl;        
-        cout << "RC.prim[1] = " << RC.prim[0] << endl;        
-        cout << "RC.prim[2] = " << RC.prim[0] << endl;        
-        cout << "RC.prim[3] = " << RC.prim[0] << endl;        
-        cout << "RC.prim[4] = " << RC.prim[0] << endl;        
-        cout << "primL[0] = " << primL[0] << endl;
-        cout << "primL[1] = " << primL[1] << endl;
-        cout << "primL[2] = " << primL[2] << endl;
-        cout << "primL[3] = " << primL[3] << endl;
-        cout << "primL[4] = " << primL[4] << endl;
-        cout << "primR[0] = " << primR[0] << endl;
-        cout << "primR[1] = " << primR[1] << endl;
-        cout << "primR[2] = " << primR[2] << endl;
-        cout << "primR[3] = " << primR[3] << endl;
-        cout << "primR[4] = " << primR[4] << endl;
-        cout << "RT = " << RT << endl;
-        cout << "rho = " << rho << endl;
-        cout << "u = " << u << endl;
-        cout << "v = " << v << endl;
-        cout << "w = " << w << endl;
-        cout << "H = " << H << endl;
-        cout << "k = " << k << endl;
-        cout << "a = " << a << endl;
-        //exit(-2);
-        }*/
-            
-            
-            
-            if ( isnan(a) ){
-            cout << "H = " << H << endl;
-            cout << "k = " << k << endl;
-            cout << "HL = " << HL << endl;
-            cout << "HR = " << HR << endl;
-            cout << "ER = " << ER << endl;
-            cout << "EL = " << EL << endl;
-            cout << "pR = " << pR << endl;
-            cout << "pL = " << pL << endl;
-            cout << "rhoR = " << rhoR << endl;
-            cout << "rhoL = " << rhoL << endl;
-            cout << "u = " << u << endl;
-            cout << "v = " << v << endl;
-            cout << "w = " << w << endl;
-            cout << "uL = " << uL << endl;
-            cout << "uR = " << uR << endl;
-            cout << "limiter.ksiV[iLC-gr.n_bou_elm][0] = " << limiter.ksiV[iLC-gr.n_bou_elm][0] << endl;
-            cout << "limiter.ksiV[iLC-gr.n_bou_elm][1] = " << limiter.ksiV[iLC-gr.n_bou_elm][1] << endl;
-            cout << "limiter.ksiV[iLC-gr.n_bou_elm][2] = " << limiter.ksiV[iLC-gr.n_bou_elm][2] << endl;
-            cout << "limiter.ksiV[iLC-gr.n_bou_elm][3] = " << limiter.ksiV[iLC-gr.n_bou_elm][3] << endl;
-            cout << "limiter.ksiV[iLC-gr.n_bou_elm][4] = " << limiter.ksiV[iLC-gr.n_bou_elm][4] << endl;
-            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][0], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][0], disL) << endl;
-            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][1], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][1], disL)<< endl;
-            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][2], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][2], disL) << endl;
-            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][3], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][3], disL) << endl;
-            cout << "dotP(gradient.grad[iLC-gr.n_bou_elm][4], disL = " << dotP(gradient.grad[iLC-gr.n_bou_elm][4], disL)<< endl;
-            cout << "LC.prim[0] = " << LC.prim[0] << endl;
-            cout << "LC.prim[1] = " << LC.prim[1] << endl;
-            cout << "LC.prim[2] = " << LC.prim[2] << endl;
-            cout << "LC.prim[3] = " << LC.prim[3] << endl;
-            cout << "LC.prim[4] = " << LC.prim[4] << endl;
-            cout << "RC.prim[0] = " << RC.prim[0] << endl;
-            cout << "RC.prim[1] = " << RC.prim[1] << endl;
-            cout << "RC.prim[2] = " << RC.prim[2] << endl;
-            cout << "RC.prim[3] = " << RC.prim[3] << endl;
-            cout << "RC.prim[4] = " << RC.prim[4] << endl;
-            cout << "iLC = " << iLC << endl;
-            cout << "iRC = " << iRC << endl;
-            cout << "iFace = " << iFace << endl;
-            exit(-2);
-            //cin.ignore();
-            }
-            
-            
-            
-            
 
             // Wave strengths
             drho = rhoR - rhoL;
@@ -546,10 +400,6 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
             ws[2] = fabs(qn + a - vb);
             ws[3] = fabs(qn - vb);
             ws[4] = fabs(qn - vb);
-            
-            
-            
-            
             
             // Right eigenvectors
             R(0,0) = 1.;
@@ -622,10 +472,6 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
                 {
                     //diss[i] += ws[j] * LdU[j] * R[i][j];
                     diss[i] += ws[j] * LdU[j] * R(i,j);
-                    
-                    
-                    
-                    
                 }
             }
 
@@ -646,13 +492,7 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
             for (int i=0; i<N_VAR; ++i)
             {
                 flux[iFace][i] = 0.5 * (fluxL[i] + fluxR[i] - diss[i]) * mg;
-                
-                
-                
             }
-            
-            
-            
 
             vel[iFace] = fabs(qn-vb) + a;
             
@@ -895,19 +735,8 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
             {
                 for (int i=0; i<N_VAR; ++i)
                 {
-                    cll.R[i] -= flux[f][i];                   
-                    
-                    
-                }                
-                
-                /*if (ic == gr.n_bou_elm)                
-                {
-                    cout << "a" << endl;
-                    cout << setprecision(10) << "flux[f][3] = " << flux[f][3] << endl;
-                    cout << "fc.area[2] = " << fc.area[2] << endl;
-                    cout << "cll.R[3] = " << cll.R[3] << endl;
-                    cout << "cll.prim[3] = " << cll.prim[3] << endl;
-                }*/
+                    cll.R[i] -= flux[f][i];
+                }      
                 
                 cll.D = cll.D + M0[f];
             }
@@ -916,14 +745,7 @@ void Roe::roeflx (Grid& gr, Limiter& limiter, vector <Matrixd<N_VAR,N_VAR>>& M0,
                 for (int i=0; i<N_VAR; ++i)
                 {
                     cll.R[i] += flux[f][i];                    
-                }                
-                
-                /*if (ic == gr.n_bou_elm)                
-                {
-                    cout << "b" << endl;
-                    cout << "flux[f][3] = " << flux[f][3] << endl;
-                    cout << "fc.area[2] = " << fc.area[2] << endl;
-                }*/
+                }
                 
                 cll.D = cll.D - M1[f];
             }

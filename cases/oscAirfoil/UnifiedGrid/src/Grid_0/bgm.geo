@@ -1,36 +1,37 @@
 //=INPUTS=====================================================
 
-H = 30;
+H = 20; // 30
 D = 1;
-mx = 100;  //10 // 100
-my = 101;   //6 // 51
+mx = 125; // 150 // 100 // 125
+my = 125; // 150 // 100 // 125
 mz = 1;
+bump = 1000; // 200 // 1000
 
 //============================================================
 
-ori = newp; // origin
-Point(ori)  = {-H,-H,0};
-ul = newp;
-Point(ul) = {-H,H,0};
-ll = newl;
-Line(ll) = {ori,ul};
+pLL = newp; Point(pLL) = {-H,-H,0}; // lower left
+pUL = newp; Point(pUL) = {-H,H,0};  // upper left
+pLR = newp; Point(pLR) = {H,-H,0};  // lower right
+pUR = newp; Point(pUR) = {H,H,0};   // upper right
 
-Transfinite Line{ll} = my;
+lL = newl; Line(lL) = {pLL,pUL};
+lB = newl; Line(lB) = {pLR,pLL};
+lR = newl; Line(lR) = {pUR,pLR};
+lT = newl; Line(lT) = {pUL,pUR};
 
-outA[] = Extrude {2*H,0,0} {Line{ll}; Layers{mx}; Recombine;};
+Transfinite Line{lL} = my Using Bump bump;
+Transfinite Line{lR} = my Using Bump bump;
+Transfinite Line{lB} = mx Using Bump bump;
+Transfinite Line{lT} = mx Using Bump bump;
 
-Printf("top line = %g", outA[0]);
-Printf("surface = %g", outA[1]);
-Printf("side lines = %g and %g", outA[2], outA[3]);
+Line Loop(1) = {lL, lT, lR, lB};
+sBase = news; Plane Surface(sBase) = {1};
 
-outB[] = Extrude {0,0,D} {Surface{outA[1]}; Layers{mz}; Recombine;};
+Transfinite Surface{sBase}; Recombine Surface{sBase};
 
-Printf("top surface = %g", outB[0]);
-Printf("volume = %g", outB[1]);
-Printf("side surfaces = %g and %g and %g and %g", outB[2], outB[3], outB[4], outB[5]);
-Printf("base surfaces = %g", outA[0]);
+outB[] = Extrude {0,0,D} {Surface{sBase}; Layers{mz}; Recombine;};
 
-Physical Surface(1) = {outB[0], outA[1]}; // laterals
+Physical Surface(1) = {outB[0], sBase}; // laterals
 Physical Surface(2) = {outB[2], outB[4], outB[3], outB[5]}; // sides
 Physical Volume(1) = {outB[1]};
 

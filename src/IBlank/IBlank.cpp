@@ -152,12 +152,28 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
                 if (grPas.cell[index].iBlank == iBlank_t::FIELD)
                 {
                     cll.iBlank = iBlank_t::FRINGE;
+                    
+                    /*if (grPas.cell[index].iBlank == iBlank_t::FIELD && grPas.id == 0)
+                    {
+                        cout << "case B" << endl;
+                        exit(-2);
+                    }*/
+                    
                     cll.donor = &grPas.cell[index];
                     grPas.cell[index].receiver.push_back (&cll);
                 }
-                else if (grPas.cell[index].iBlank == iBlank_t::FRINGE)
+                else if (grPas.cell[index].iBlank == iBlank_t::FRINGE || grPas.cell[index].iBlank == iBlank_t::HOLE)
                 {
+                    
+                
                     cll.iBlank = iBlank_t::FIELD;
+                    
+                    /*if (cll.iBlank == iBlank_t::FIELD && grAct.id == 0)
+                    {
+                        cout << "case D" << endl;
+                        cout << "state = " << static_cast<int> (grPas.cell[index].iBlank) << endl;
+                        exit(-2);
+                    }*/
                 }
                 else if (grPas.cell[index].iBlank == iBlank_t::UNDEFINED)
                 {
@@ -193,14 +209,29 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
                         grPas.cell[index].donor = &cll;
                         cll.receiver.push_back (&grPas.cell[index]);
                     }
+                    
+                    /*if (grPas.cell[index].iBlank == iBlank_t::FRINGE && grPas.id == 1)
+                    {
+                        cout << "case A" << endl;
+                        exit(-2);
+                    }
+                    
+                    if (cll.iBlank == iBlank_t::FIELD && grPas.id == 0)
+                    {
+                        cout << "case C" << endl;
+                        exit(-2);
+                    }*/
+                    
                 }
                 else
                 {
                     cout << "undefined behavior in Grid::identifyIBlank(...)" << endl;
+                    cout << "state = " << static_cast<int> (grPas.cell[index].iBlank) << endl;
                     exit(-2);
                 }
             }
         }
+        
     }
     
     for (int c=0; c<grAct.n_bou_elm; ++c)

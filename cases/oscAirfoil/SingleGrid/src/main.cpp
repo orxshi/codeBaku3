@@ -52,6 +52,9 @@ int main(int argc, char** argv)
     solSteady.petsc.finalize();
     watchSteady.stop();
     
+    gr.outAllVTK (0);
+    exit(-2);
+    
     int countr = 0;
     watchOscAirfoil.start();
     

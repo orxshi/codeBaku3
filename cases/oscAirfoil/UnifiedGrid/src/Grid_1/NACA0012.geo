@@ -2,10 +2,10 @@ c = 1; // chord length
 t = 12 * c / 100; // thickness -- NACA0012
 nX = 1000; // number of 'x' points
 depth = 1; // extrusion length
-transCircleEach = 10; // 20 // 30 // 20 // 10 // 25 // 30 // 20
-transAfoilEach = 60; // 80 // 100 // 70 // 60 // 130 // 130 // 200
-major = 10; // 0.3 // 20
-minor = 10; // 0.8 // 20
+transCircleEach = 50; // 20 // 30 // 20 // 10 // 25 // 30 // 20 // 40 // 50
+transAfoilEach = 100; // 80 // 100 // 70 // 60 // 130 // 130 // 200 // 80 // 100
+major = 0.3; // 0.3 // 20
+minor = 0.8; // 0.8 // 20
 
 xInc = c / nX;
 C1 = 0.2969;
@@ -16,7 +16,7 @@ C5 = 0.1036;
 
 x[0] = 0;
 For i In {1:nX}
-	x[i] = i * xInc;
+	x[i] = x[0] + i * xInc;
 EndFor
 
 y[0]  = 0;
@@ -31,7 +31,7 @@ y[nX] = 0;
 
 For i In {0:nX}
 	pointNum[i] = newp;
-	Point( pointNum[i] ) = {x[i],y[i],0};
+	Point( pointNum[i] ) = {x[i]-0.5,y[i],0};
 EndFor
 
 For i In {0:nX}
@@ -51,7 +51,7 @@ Line Loop (afoilLoop) = {splineNum, -symLine[0]};
 
 centerPoint = newp;
 
-cenP = c/2;
+cenP = 0; // cenP = c/2;
 Point(centerPoint) = {cenP,0,0};
 
 pCircleEast  = newp; Point(pCircleEast)  = {cenP+minor,0,0};

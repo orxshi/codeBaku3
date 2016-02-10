@@ -99,6 +99,7 @@ struct Solver
     void preSolverCheck(const Grid& gr);    
     void read (string fileName);
     void set_residual (Grid& g); // don't use
+    void getResiduals (Grid& gr);
     void diff_to_cons_prim(Grid& g);
     void getMaxRes (Grid& gr);    
     void getRmsRes (Grid& gr);

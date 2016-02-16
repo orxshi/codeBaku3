@@ -249,6 +249,18 @@ namespace AFT
         }
         
         newGrid.set_elmVolumes();
+        
+        for (int c=0; c<newGrid.cell.size(); ++c)
+        {
+            Cell& cll = newGrid.cell[c];
+        
+            if (cll.nei.size() == 0)            
+            {
+                cout << "nei size is zero" << endl;
+                cout << "c = " << c << endl;
+                exit(-2);
+            }
+        }
     }
     
     bool faceExists (const Face& nf, const vector<Face>& face, const vector<::Point>& point, int& index)

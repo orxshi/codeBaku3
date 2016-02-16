@@ -2,6 +2,8 @@
 
 void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vector <Matrixd<N_VAR,N_VAR>>& M1)
 {
+    cout << "inside petsc" << endl;
+
     int rank, nProcs;
 
     MPI_Comm world = MPI_COMM_WORLD;
@@ -34,6 +36,8 @@ void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vecto
         
         val[gp-vecLocBeg] = cll.R[i];
     }
+    
+    cout << "loaded RHS vector in petsc" << endl;
         
     VecSetValues (b, vecLocalSize, ind, val, INSERT_VALUES);
     
@@ -132,6 +136,8 @@ void Solver::Petsc::solveAxb (Grid& gr, vector <Matrixd<N_VAR,N_VAR>>& M0, vecto
     
     MatAssemblyBegin (A, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd (A, MAT_FINAL_ASSEMBLY);    
+    
+    cout << "loaded matrix in petsc" << endl;
     
     KSPSolve (ksp, b, x);
     

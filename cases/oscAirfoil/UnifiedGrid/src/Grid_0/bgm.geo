@@ -2,17 +2,25 @@
 
 H = 20; // 30
 D = 1;
-mx = 125; // 150 // 100 // 125
-my = 125; // 150 // 100 // 125
+//HH = 10;
+mx = 200; // 150 // 100 // 125
+my = 200; // 150 // 100 // 125
 mz = 1;
-bump = 1000; // 200 // 1000
+bump = 200; // 200 // 1000
 
 //============================================================
+
+//HHH = (H - HH) / 2;
 
 pLL = newp; Point(pLL) = {-H,-H,0}; // lower left
 pUL = newp; Point(pUL) = {-H,H,0};  // upper left
 pLR = newp; Point(pLR) = {H,-H,0};  // lower right
 pUR = newp; Point(pUR) = {H,H,0};   // upper right
+
+//pILL = newp; Point(pILL) = {-HHH,-HHH,0}; // inner lower left
+//pIUL = newp; Point(pIUL) = {-HHH, HHH,0}; // inner upper left
+//pILR = newp; Point(pILR) = { HHH,-HHH,0}; // inner lower right
+//pIUR = newp; Point(pIUR) = { HHH, HHH,0}; // inner upper right
 
 lL = newl; Line(lL) = {pLL,pUL};
 lB = newl; Line(lB) = {pLR,pLL};

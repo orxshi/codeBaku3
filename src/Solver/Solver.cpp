@@ -33,6 +33,8 @@ Solver::Solver (Grid& gr, string instanceName, int nActiveElms) : petsc(nActiveE
 
 Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
 {    
+    cout << "inside petsc constructor" << endl;
+
     int nProcs;
 
     MPI_Comm world = MPI_COMM_WORLD;
@@ -65,10 +67,12 @@ Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
     VecGetLocalSize (x, &vecLocalSize);
     VecGetOwnershipRange (x, &vecLocBeg, &vecLocEnd);
     
-    
+    cout << "set x" << endl;
 
     // set b
     VecDuplicate (x, &b);
+    
+    cout << "set b" << endl;
     
     // set A
     MatCreate (world, &A);    
@@ -85,7 +89,7 @@ Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
     MatGetOwnershipRange (A, &matLocBeg, &matLocEnd);
     MatGetLocalSize (A, &matLocalSize, NULL);
     
-    
+    cout << "set matrix" << endl;
     
     KSPCreate (world, &ksp);
     KSPSetOperators (ksp, A, A);

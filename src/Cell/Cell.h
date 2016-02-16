@@ -54,7 +54,7 @@ struct Cell
     Vector<N_VAR> resInner, resOuter;
     Matrixd<N_VAR, N_VAR> D;
     bool trim; 
-    bool trim2;
+    bool trimmedNow;
     bool newlyCreated;
     bool ghost;
     Vector<3> cnt;

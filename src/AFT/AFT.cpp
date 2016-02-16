@@ -28,13 +28,19 @@ namespace AFT
         //cout << "done!" << endl;
         
         // this should not be in AFT
-        //cout << "Trimming/Re-blanking... " << flush;
+        cout << "Trimming/Re-blanking... " << flush;
         gr[0].trimWhoHasFringeNeighbor();
         gr[1].trimWhoHasFringeNeighbor();
+        
         gr[0].trimWhoHasTrimNeighbor (2);
         gr[1].trimWhoHasTrimNeighbor (3);
-        gr[0].trimWhoHasTrimNeighbor (2);
-        gr[1].trimWhoHasTrimNeighbor (3);
+        
+        gr[0].trimWhoHasTrimNeighbor (1);
+        //gr[0].trimWhoHasTrimNeighbor (1);
+        //gr[0].trimToUntrim (1);
+        
+        //gr[0].trimWhoHasTrimNeighbor (1);
+        //gr[0].trimToUntrim (2);        
         //cout << "done!" << endl;
         
         // this too
@@ -43,17 +49,17 @@ namespace AFT
         //gr[1].outAllTecplot();
         gr[0].outAllVTK(0);
         gr[1].outAllVTK(0);
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
-        exit(-2);
+        //exit(-2);
      
-        //cout << "Preparing... " << flush;
+        cout << "Preparing... " << flush;
         setPointsEdges (gr, points, edges, edgeCenters, newGridId);
         createFrontList (edges, frontList, points);
         aveTriArea = getAveTriArea (edges, points);
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
-        //cout << "Building trees... " << flush;        
+        cout << "Building trees... " << flush;        
         for (Edge& e: edges)
         {
             if (e.belonging == 0)
@@ -76,39 +82,39 @@ namespace AFT
         circleADT.build (edgeADT);
         cout << "done!" << endl;
         
-        //cout << "Exporting to GMSH... " << flush;
+        cout << "Exporting to GMSH... " << flush;
         exportToGMSH (points, mesh0Edges, mesh1Edges, gr[0].mainDir);
-        //cout << "done!" << endl;        
+        cout << "done!" << endl;        
         
-        //cout << "Advancing front... " << flush;
+        cout << "Advancing front... " << flush;
         advanceFront (frontList, points, aveTriArea, edges, triangles, triangleADT, pointADT, edgeCenterADT, edgeADT, edge01ADT, newGridId, edgeCenters, circleADT);
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
-        //cout << "Erasing dead elements... " << flush;
+        cout << "Erasing dead elements... " << flush;
         eraseDeadPoints (points, edges, triangles);
         eraseDeadEdges (edges, triangles, points);
         eraseDeadTriangles (triangles, points, edges);
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
-        //cout << "Outputing unflipped triangles... " << flush;        
+        cout << "Outputing unflipped triangles... " << flush;        
         outputTrianglesVTK (points, triangles, gr[0].mainDir, "tri.vtk");
-        //cout << "done!" << endl;        
+        cout << "done!" << endl;        
         
-        //cout << "Flipping triangles... " << flush;
+        cout << "Flipping triangles... " << flush;
         flip (triangles, edges, points);
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
-        //cout << "Flipping triangles... " << flush;
+        cout << "Flipping triangles... " << flush;
         flip (triangles, edges, points);
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
-        //cout << "Outputing flipped triangles... " << flush;    
+        cout << "Outputing flipped triangles... " << flush;    
         outputTrianglesVTK (points, triangles, gr[0].mainDir, "triFlip.vtk");
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
-        //cout << "Creating cells... " << flush;
+        cout << "Creating cells... " << flush;
         createCells (offsetZ, points, newGrid, triangles, phys, newGridId);
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
         
         
@@ -118,9 +124,9 @@ namespace AFT
         newGrid.outAllVTK(0);
         //cout << "done!" << endl;
         
-        //cout << "Creating final grid... " << flush;
+        cout << "Creating final grid... " << flush;
         createFinalGrid (finalGrid, gr, newGrid);
-        //cout << "done!" << endl;
+        cout << "done!" << endl;
         
         
         

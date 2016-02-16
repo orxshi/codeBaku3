@@ -17,6 +17,7 @@ int main(int argc, char** argv)
     
     Watch watchSteady;
     Watch watchOscAirfoil;
+    Watch watchAFT;
     
     PetscMPIInt rank, n_procs;
     MPI_Comm world = PETSC_COMM_WORLD;
@@ -76,30 +77,44 @@ int main(int argc, char** argv)
     Grid finalGrid (mainDir, 3);
     
     
-    
+    watchAFT.start();
     AFT::aft (grs, finalGrid);    
+    cout << "out of AFT" << endl;
+    watchAFT.stop();    
+    cout << "stopped aft watch" << endl;
+    log (mainDir, watchAFT.elapsedTime, "elapsedTimeAFT", watchAFT.unit);
+    cout << "logged AFT" << endl;
     
     finalGrid.outAllVTK (0);
+    cout << "output final grid" << endl;
     
-    exit(-2);
+    //exit(-2);
     
     finalGrid.readInput();
+    cout << "read final grid" << endl;
     //finalGrid.leastSquaresCoeffs();    
     finalGrid.cellADT.build (finalGrid);
+    cout << "built final grid" << endl;
     oscInit.init (finalGrid);
+    cout << "osc init" << endl;
     
     Solver solSteady (finalGrid, "SOLVER-STEADY", finalGrid.n_in_elm);
+    cout << "made solSteady" << endl;
     solSteady.read ("Solver/solSteady.dat");
+    cout << "read solSteady" << endl;
 
     // solve steady state
     SMAirfoil sma (solSteady.dt);
     OscAirfoil oa (1.); // 1 is time step
     sma.read ("MovingGrid/smAirfoil.dat");
     oa.read ("MovingGrid/oscAirfoil.dat");
+    
+    cout << "ma read" << endl;
 
     //Coeffs coeffs (finalGrid, oscInit.rhoInf, oscInit.pInf, oscInit.Mach, oa.MachAirfoil);
     
     sma.getAllFaceVelocities (finalGrid);
+    cout << "sma read" << endl;
     //watchSteady.start();
     (solSteady.implicit) ? solSteady.impl(finalGrid) : solSteady.expl(finalGrid);
     //solSteady.petsc.finalize();

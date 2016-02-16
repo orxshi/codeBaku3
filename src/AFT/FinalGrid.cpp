@@ -720,6 +720,17 @@ namespace AFT
         {
             bool pass = ghostPass (f, newGrid.cell[f.nei[0]].iBlank, newGrid.cell[f.nei[0]].trim);
             if (pass) { addGhostCells (f, newGrid.face, newGrid.cell, newGrid.pt, finalGrid, fgp, fgcc, fgfc);}
+            
+            if (finalGrid.cell.size() == 94118)
+            {
+                cout << "found in final grid 2" << endl;
+                if (finalGrid.cell[94117].nei.size() == 0)
+                {
+                    cout << "fdgdfg" << endl;
+                    exit(-2);
+                }
+                exit(-2);
+            }
         }
         
         finalGrid.n_bou_elm = finalGrid.cell.size();
@@ -797,6 +808,18 @@ namespace AFT
         
         finalGrid.totalNElms = finalGrid.cell.size();
         finalGrid.n_in_elm = finalGrid.totalNElms - finalGrid.n_bou_elm;
+        
+        for (int c=0; c<finalGrid.cell.size(); ++c)
+        {
+            Cell& cll = finalGrid.cell[c];
+        
+            if (cll.nei.size() == 0)            
+            {
+                cout << "nei size is zero in final grid" << endl;
+                cout << "c = " << c << endl;
+                exit(-2);
+            }
+        }
         
         //cout << "finalGrid.n_bou_elm = " << finalGrid.n_bou_elm << endl;
         //cout << "finalGrid.n_in_elm = " << finalGrid.n_in_elm << endl;

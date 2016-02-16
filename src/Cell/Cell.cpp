@@ -5,7 +5,7 @@ Cell::Cell()
     vol    = 0.;
     iBlank = iBlank_t::UNDEFINED;
     trim   = false;
-    trim2  = false;
+    trimmedNow = false;
     newlyCreated = false;
     type = elmType_t::UNDEFINED;
     bc = BC::UNDEFINED;

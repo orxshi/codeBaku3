@@ -236,22 +236,17 @@ void Limiter::bj (Grid& gr, Gradient& gradient)
 }
 
 void Limiter::venka (Grid& gr, Gradient& gradient)
-{    
-    auto phi = [&] (double x, double eps)
-    {
-        return (pow(x,2.) + 2.*x + eps) / (pow(x,2.) + x + 2. + eps);
-    };
-
+{
     Vector<N_VAR> ksiF;
     int icc;
-    double K = 50000;
+    double K = 0.7;
     // K >> 0 --> no limiter
     
     for (int ic=displs[rank]; ic<displs[rank]+localSize; ++ic)
     {
         Cell& cll = gr.cell[ic];
         icc = ic - gr.n_bou_elm;
-        double eps = pow(K*cll.vol, 3.);
+        double epsSq = pow (K*cll.vol, 3.);
         
         for (int k=0; k<N_VAR; ++k)
         {
@@ -277,15 +272,13 @@ void Limiter::venka (Grid& gr, Gradient& gradient)
             
             for (int k=0; k<N_VAR; ++k)
             {
-                double tmp = dotP(gradient.grad[icc][k],dis);                
-            
-                if (tmp > 0.)
-                {                    
-                    ksiF[k] = phi ((max( nei.prim[k], cll.prim[k] ) - cll.prim[k]) / tmp, eps);
-                }
-                else if (tmp < 0.)
+                double Dp    = nei.prim[k] - cll.prim[k];
+                double Dn    = dotP(gradient.grad[icc][k],dis);
+                double add   = epsSq * Dn;
+                
+                if (Dn != 0.)
                 {
-                    ksiF[k] = phi ((min( nei.prim[k], cll.prim[k] ) - cll.prim[k]) / tmp, eps);
+                    ksiF[k] = (pow(Dp,2.)*Dn + 2.*pow(Dn,2.)*Dp + epsSq*Dn) / (pow(Dp,2.) + 2.*pow(Dn,2.) + Dn*Dp + epsSq);
                 }
                 else
                 {

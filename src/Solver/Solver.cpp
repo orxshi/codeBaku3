@@ -33,7 +33,7 @@ Solver::Solver (Grid& gr, string instanceName, int nActiveElms) : petsc(nActiveE
 
 Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
 {    
-    cout << "inside petsc constructor" << endl;
+    //cout << "inside petsc constructor" << endl;
 
     int nProcs;
 
@@ -67,12 +67,12 @@ Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
     VecGetLocalSize (x, &vecLocalSize);
     VecGetOwnershipRange (x, &vecLocBeg, &vecLocEnd);
     
-    cout << "set x" << endl;
+    //cout << "set x" << endl;
 
     // set b
     VecDuplicate (x, &b);
     
-    cout << "set b" << endl;
+    //cout << "set b" << endl;
     
     // set A
     MatCreate (world, &A);    
@@ -89,7 +89,7 @@ Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
     MatGetOwnershipRange (A, &matLocBeg, &matLocEnd);
     MatGetLocalSize (A, &matLocalSize, NULL);
     
-    cout << "set matrix" << endl;
+    //cout << "set matrix" << endl;
     
     KSPCreate (world, &ksp);
     KSPSetOperators (ksp, A, A);
@@ -121,11 +121,16 @@ Solver::Petsc::Petsc (int nActiveElms, Grid& gr)
 
 void Solver::preSolverCheck (const Grid& gr)
 {
-    for (const Cell& cll: gr.cell)
+    for (int c=0; c<gr.cell.size(); ++c)
+    //for (const Cell& cll: gr.cell)
     {
+        const Cell& cll = gr.cell[c];
+    
         if (cll.iBlank == iBlank_t::UNDEFINED)
         {
             cout << "iBlank is undefined in Solver::preSolverCheck(...)" << endl;
+            cout << "grid id = " << gr.id << endl;
+            cout << "c = " << c << endl;
             exit(-2);
         }
     }

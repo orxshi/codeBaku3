@@ -260,6 +260,13 @@ namespace AFT
                 cout << "c = " << c << endl;
                 exit(-2);
             }
+            
+            if (cll.iBlank == iBlank_t::UNDEFINED)
+            {
+                cout << "new grid cell iblank is undefined" << endl;
+                cout << "c = " << c << endl;
+                exit(-2);
+            }
         }
     }
     

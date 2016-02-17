@@ -100,17 +100,11 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
 
     for (int c=grAct.n_bou_elm; c<grAct.cell.size(); ++c)
     {
-        
-    
         int index;        
         Cell& cll = grAct.cell[c];
         
-        
-        
         if (cll.iBlank == iBlank_t::UNDEFINED)
-        {            
-            
-        
+        {    
             index = getIndex (cll);
             
             if (index == -1)
@@ -147,33 +141,16 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
             }
             else
             {
-            
-            
                 if (grPas.cell[index].iBlank == iBlank_t::FIELD)
                 {
                     cll.iBlank = iBlank_t::FRINGE;
-                    
-                    /*if (grPas.cell[index].iBlank == iBlank_t::FIELD && grPas.id == 0)
-                    {
-                        cout << "case B" << endl;
-                        exit(-2);
-                    }*/
                     
                     cll.donor = &grPas.cell[index];
                     grPas.cell[index].receiver.push_back (&cll);
                 }
                 else if (grPas.cell[index].iBlank == iBlank_t::FRINGE || grPas.cell[index].iBlank == iBlank_t::HOLE)
                 {
-                    
-                
                     cll.iBlank = iBlank_t::FIELD;
-                    
-                    /*if (cll.iBlank == iBlank_t::FIELD && grAct.id == 0)
-                    {
-                        cout << "case D" << endl;
-                        cout << "state = " << static_cast<int> (grPas.cell[index].iBlank) << endl;
-                        exit(-2);
-                    }*/
                 }
                 else if (grPas.cell[index].iBlank == iBlank_t::UNDEFINED)
                 {
@@ -209,19 +186,6 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
                         grPas.cell[index].donor = &cll;
                         cll.receiver.push_back (&grPas.cell[index]);
                     }
-                    
-                    /*if (grPas.cell[index].iBlank == iBlank_t::FRINGE && grPas.id == 1)
-                    {
-                        cout << "case A" << endl;
-                        exit(-2);
-                    }
-                    
-                    if (cll.iBlank == iBlank_t::FIELD && grPas.id == 0)
-                    {
-                        cout << "case C" << endl;
-                        exit(-2);
-                    }*/
-                    
                 }
                 else
                 {
@@ -230,8 +194,7 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
                     exit(-2);
                 }
             }
-        }
-        
+        }        
     }
     
     for (int c=0; c<grAct.n_bou_elm; ++c)
@@ -241,13 +204,19 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
         
         if (cll.iBlank == iBlank_t::UNDEFINED)
         {
-            if (cll.fringeBou == fringeBou_t::YES)
+            /*if (grAct.id == 0 && c == 39601)
             {
+                cout << "hi1" << endl;
+                exit(-2);
+            }*/
+        
+            if (cll.fringeBou == fringeBou_t::YES)
+            {     
                 index = getIndex (cll);
 
                 if (index == -1)
                 {
-                    cll.iBlank == iBlank_t::NA;
+                    cll.iBlank = iBlank_t::NA;
                 }
                 else
                 {
@@ -258,7 +227,7 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
                         grPas.cell[index].receiver.push_back (&cll);
                     }
                     else if (grPas.cell[index].iBlank == iBlank_t::FRINGE)
-                    {                        
+                    {   
                         cll.iBlank = iBlank_t::FRINGE;
                         grPas.cell[index].iBlank = iBlank_t::FIELD;
                         
@@ -300,8 +269,8 @@ void Iblank::identify (Grid& grAct, Grid& grPas)
                 }
             }
             else if (cll.fringeBou == fringeBou_t::NO)
-            {
-                cll.iBlank == iBlank_t::NA;
+            {            
+                cll.iBlank = iBlank_t::NA;
             }
             else if (cll.fringeBou == fringeBou_t::UNDEFINED)
             {

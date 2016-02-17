@@ -30,7 +30,7 @@ void slipWall (Cell& cll, const vector<Face>& face, const vector<Cell>& cell)
 
 void Grid::apply_BCs()
 {
-    cout << "apply bc" << endl;
+    //cout << "apply bc" << endl;
     
 
     for (int c=0; c<n_bou_elm; ++c)
@@ -38,23 +38,23 @@ void Grid::apply_BCs()
         switch (cell[c].bc)
         {
             case BC::EMPTY:
-            cout << "empty" << endl;
+            /*cout << "empty" << endl;
                 cout << "c = " << c << endl;
                 cout << "cell[c].nei.size() = " << cell[c].nei.size() << endl;
                 cout << "cell[c].nei[0] = " << cell[c].nei[0] << endl;
                 cout << "n_bou_elm = " << n_bou_elm << endl;
-                cout << "cell.size() = " << cell.size() << endl;
+                cout << "cell.size() = " << cell.size() << endl;*/
                 empty( cell[c],cell );
                 
                 break;
             case BC::SLIP_WALL:
-            cout << "slip" << endl;
+            /*cout << "slip" << endl;
             cout << "c = " << c << endl;
                 cout << "cell[c].face[0] = " << cell[c].face[0] << endl;
                 cout << "cell[c].nei[0] = " << cell[c].nei[0] << endl;
                 cout << "face.size() = " << face.size() << endl;
                 cout << "n_bou_elm = " << n_bou_elm << endl;
-                cout << "cell.size() = " << cell.size() << endl;
+                cout << "cell.size() = " << cell.size() << endl;*/
                 slipWall( cell[c],face,cell );
                 
                 break;

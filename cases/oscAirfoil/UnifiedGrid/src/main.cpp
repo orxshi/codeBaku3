@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     // hole cutting
     Iblank iblank;
     iblank.identify (grs[0], grs[1]);
-    iblank.identify (grs[1], grs[0]);    
+    iblank.identify (grs[1], grs[0]);
     iblank.treatFieldIslands (grs[0]);
     iblank.treatFieldIslands (grs[1]);
     iblank.treatFringeIslands (grs[0]);
@@ -68,6 +68,21 @@ int main(int argc, char** argv)
     iblank.treatVoidAreas (grs[0]);
     iblank.treatVoidAreas (grs[1]);
     
+    for (int g=0; g<grs.size(); ++g)
+    {
+        for (int c=0; c<grs[g].cell.size(); ++c)
+        {
+            if (grs[g].cell[c].iBlank == iBlank_t::UNDEFINED)
+            {
+                cout << "undefined iblank" << endl;
+                cout << "g = " << g << endl;
+                cout << "c = " << c << endl;
+                cout << "d = " << grs[g].n_bou_elm << endl;
+                cout << "d = " << grs[g].cell.size() << endl;
+                exit(-2);
+            }
+        }
+    }
     
     grs[0].outAllVTK (0);
     grs[1].outAllVTK (0);
@@ -79,29 +94,29 @@ int main(int argc, char** argv)
     
     watchAFT.start();
     AFT::aft (grs, finalGrid);    
-    cout << "out of AFT" << endl;
+    //cout << "out of AFT" << endl;
     watchAFT.stop();    
-    cout << "stopped aft watch" << endl;
+    //cout << "stopped aft watch" << endl;
     log (mainDir, watchAFT.elapsedTime, "elapsedTimeAFT", watchAFT.unit);
-    cout << "logged AFT" << endl;
+    //cout << "logged AFT" << endl;
     
     finalGrid.outAllVTK (0);
-    cout << "output final grid" << endl;
+    //cout << "output final grid" << endl;
     
     //exit(-2);
     
     finalGrid.readInput();
-    cout << "read final grid" << endl;
+    //cout << "read final grid" << endl;
     //finalGrid.leastSquaresCoeffs();    
     finalGrid.cellADT.build (finalGrid);
-    cout << "built final grid" << endl;
+    //cout << "built final grid" << endl;
     oscInit.init (finalGrid);
-    cout << "osc init" << endl;
+    //cout << "osc init" << endl;
     
     Solver solSteady (finalGrid, "SOLVER-STEADY", finalGrid.n_in_elm);
-    cout << "made solSteady" << endl;
+    //cout << "made solSteady" << endl;
     solSteady.read ("Solver/solSteady.dat");
-    cout << "read solSteady" << endl;
+    //cout << "read solSteady" << endl;
 
     // solve steady state
     SMAirfoil sma (solSteady.dt);
@@ -109,16 +124,16 @@ int main(int argc, char** argv)
     sma.read ("MovingGrid/smAirfoil.dat");
     oa.read ("MovingGrid/oscAirfoil.dat");
     
-    cout << "ma read" << endl;
+    //cout << "ma read" << endl;
 
     //Coeffs coeffs (finalGrid, oscInit.rhoInf, oscInit.pInf, oscInit.Mach, oa.MachAirfoil);
     
     sma.getAllFaceVelocities (finalGrid);
-    cout << "sma read" << endl;
-    //watchSteady.start();
+    //cout << "sma read" << endl;
+    watchSteady.start();
     (solSteady.implicit) ? solSteady.impl(finalGrid) : solSteady.expl(finalGrid);
-    //solSteady.petsc.finalize();
-    //watchSteady.stop();
+    solSteady.petsc.finalize();
+    watchSteady.stop();
     
     //finalGrid.outAllVTK (0);
     exit(-2);

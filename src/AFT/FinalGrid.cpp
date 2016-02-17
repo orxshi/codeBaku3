@@ -150,6 +150,8 @@ namespace AFT
     
     bool ghostPass (const Face& f, const iBlank_t& LCIBlank, const bool LCTrim)
     {
+        
+    
         if (f.bouType != face_t::BOUNDARY)
         {
             return false;
@@ -158,6 +160,8 @@ namespace AFT
         {
             return false;
         }
+        
+        
         
         return true;
     }
@@ -201,6 +205,8 @@ namespace AFT
     
     void addNearBoundaryCells (const Face& f, const vector<Face>& face, const vector<Cell>& cell, const vector<::Point>& pt, Grid& finalGrid, PointADT& fgp, PointADT& fgcc, PointADT& fgfc)
     {
+        
+    
         // face f is the face of normal or new grid
     
         int iRefC;
@@ -221,8 +227,30 @@ namespace AFT
         bool faceExist = pointExists (faceCent, fgfc, iRefFace); // face should exist
         Face& fac = finalGrid.face[iRefFace];
         
+        if (finalGrid.face[iRefFace].nei.size() != 1)
+        {
+            cout << "0 neis in addnearboucells 1111" << endl;
+            cout << finalGrid.face[iRefFace].nei.size() << endl;
+            cout << iRefFace << endl;
+            cout << f.cnt[0] << endl;
+            cout << f.cnt[1] << endl;
+            cout << f.cnt[2] << endl;
+            cout << finalGrid.face[iRefFace].cnt[0] << endl;
+            cout << finalGrid.face[iRefFace].cnt[1] << endl;
+            cout << finalGrid.face[iRefFace].cnt[2] << endl;
+            cout << &f - &face.front() << endl;
+            
+            exit(-2);
+        }
+        
         cll.face.push_back (iRefFace);
         fac.nei.push_back (iRefC);
+        
+        if (fac.nei.size() != 2)
+        {
+            cout << "face does not have 2 neis in addnearboucells" << endl;
+            exit(-2);
+        }
         
         int tmp = fac.nei[0];
         fac.nei[0] = fac.nei[1];
@@ -230,6 +258,8 @@ namespace AFT
         
         finalGrid.cell[fac.nei[0]].nei.push_back (fac.nei[1]);
         finalGrid.cell[fac.nei[1]].nei.push_back (fac.nei[0]);
+        
+        
 
         // loop through vertices of cell
         for (int v=0; v<f.vtx.size(); ++v)
@@ -348,6 +378,12 @@ namespace AFT
             
             finalGrid.cell[iRefC].face.push_back(iRefFace);
             newFace.nei.push_back (iRefC);
+        }
+        
+        if (newFace.nei[1] == 94117 || newFace.nei[0] == 94117)
+        {
+            cout << "inception" << endl;
+            exit(-2);
         }
         
         if (newFace.nei.size() == 2)
@@ -701,8 +737,6 @@ namespace AFT
         
         ngfc.build();
         
-        
-        
         // add boundary elements which are attached to field and untrimmed cells        
         for (const Grid& g: gr)
         {
@@ -716,22 +750,26 @@ namespace AFT
             }
         }
         
+        //cout << finalGrid.face.size() << endl;
+        //exit(-2);
+        
         for (const Face& f: newGrid.face)
         {
             bool pass = ghostPass (f, newGrid.cell[f.nei[0]].iBlank, newGrid.cell[f.nei[0]].trim);
             if (pass) { addGhostCells (f, newGrid.face, newGrid.cell, newGrid.pt, finalGrid, fgp, fgcc, fgfc);}
-            
-            if (finalGrid.cell.size() == 94118)
+        }
+        
+        for (int f=0; f<finalGrid.face.size(); ++f)
+        {
+            if (finalGrid.face[f].nei.size() != 1)
             {
-                cout << "found in final grid 2" << endl;
-                if (finalGrid.cell[94117].nei.size() == 0)
-                {
-                    cout << "fdgdfg" << endl;
-                    exit(-2);
-                }
+                cout << "nei size != 1" << endl;
                 exit(-2);
             }
         }
+        
+        //cout << finalGrid.face.size() << endl;
+        //exit(-2);
         
         finalGrid.n_bou_elm = finalGrid.cell.size();
         
@@ -803,6 +841,7 @@ namespace AFT
         for (const Face& f: newGrid.face)
         {
             bool pass = ghostPass (f, newGrid.cell[f.nei[0]].iBlank, newGrid.cell[f.nei[0]].trim);
+            
             if (pass) { addNearBoundaryCells (f, newGrid.face, newGrid.cell, newGrid.pt, finalGrid, fgp, fgcc, fgfc); }
         }
         

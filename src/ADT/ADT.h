@@ -83,7 +83,8 @@ struct ADT
     void destroy_tree (Node *&leaf);
     void destroy_tree();
 
-    void insert (ADTPoint& point, Node *node, bool& isInserted);
+    //void insert (Node *node, bool& isInserted, int& median);
+    void insert (ADTPoint& point, Node* node, bool& isInserted);
 
     bool doRegionOverlap (const unsigned int j, const Node *node, const ADTPoint& targetPoint);
 
@@ -108,6 +109,7 @@ struct ADT
 
     void build();
     void moveNodes (Node *&leaf, Node *&otherLeaf);
+    //int findMedian (int j);
 };
 
 #endif	/* ADT_H */

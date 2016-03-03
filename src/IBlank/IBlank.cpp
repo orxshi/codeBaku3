@@ -55,7 +55,7 @@ void Grid::setWallDistance (int phys)
 Iblank::Iblank ()
 {
     // default
-    cellCriter = cellCriter_t::WALL;
+    cellCriter = cellCriter_t::SIZE;
 
     ifstream in;
     in.open("iblank.dat");

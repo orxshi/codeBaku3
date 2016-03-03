@@ -139,14 +139,18 @@ void ADT::destroy_tree()
 }
 
 void ADT::insert (ADTPoint& point, Node* node, bool& isInserted)
+//void ADT::insert (Node* node, bool& isInserted, int& median)
 {
     isInserted = false;
 
     unsigned int j = node->level % ADT_VAR;
+    //median = findMedian (j);
     node->key = 0.5 * (node->c[j] + node->d[j]);
+    //ADTPoint& point = points[median];
+    //node->key = point.dim[j];
 
     // point is in left region
-    if (point.dim[j] < node->key)
+    if (point.dim[j] < node->key) // need to be removed
     {
         if (node->left == NULL)
         {
@@ -186,6 +190,7 @@ void ADT::insert (ADTPoint& point, Node* node, bool& isInserted)
         else
         {
             insert(point, node->left, isInserted);
+            //insert(node->left, isInserted, median);
         }
     }
     // point is in right region
@@ -228,6 +233,7 @@ void ADT::insert (ADTPoint& point, Node* node, bool& isInserted)
         }
         else
         {
+            //insert(node->right, isInserted, median);
             insert(point, node->right, isInserted);
         }
     }
@@ -443,20 +449,30 @@ void ADT::build ()
             }
         }
 
+        //unsigned int j = root->level % ADT_VAR;
+        //int median = findMedian (j);
+        
         root->p = new ADTPoint (points.front());        
+        //root->key = points[median].dim[j];
+        //root->p = new ADTPoint (points[median]);
         root->isEmpty = false;
         idsInTree.push_back (points.front().idx);
+        //idsInTree.push_back (points[median].idx);
         addrsInTree.push_back (root);
 
+        //points.erase (points.begin()+median);
         points.erase (points.begin());
     }
 
     while (!points.empty())
     {
         isInserted = false;
+        //int median;
+        //insert (root, isInserted, median);
         insert (points.front(), root, isInserted);
         if (isInserted)
         {
+            //points.erase (points.begin()+median);
             points.erase (points.begin());
         }
         else
@@ -466,3 +482,47 @@ void ADT::build ()
         }
     }
 }
+
+/*int ADT::findMedian (int j, double c, double d)
+{
+    int median;
+    int size = 0;
+    
+    for (ADTPoint& p: points)
+    {
+        if (p.dim[j] >= c && p.dim[j] <= d)
+        {
+            ++size;
+        }
+    }
+    
+    sort(points.begin(), points.end(), [&](ADTPoint& a, ADTPoint& b)
+    {
+        if (a.dim[j] < c || a.dim[j] > d)
+        {
+            return false; // b preceeds a
+        }
+        else
+        {
+            if (b.dim[j] < c || b.dim[j] > d)
+            {
+                return true; // a preceeds b
+            }
+            else
+            {                
+                return a.dim[j] < b.dim[j]; // a preceeds b
+            }
+        }        
+    });
+
+    if (size % 2 == 0)
+    {
+        median = size / 2;
+    }
+    else 
+    {
+        median = (size-1) / 2;
+    }
+
+    return median;
+}*/

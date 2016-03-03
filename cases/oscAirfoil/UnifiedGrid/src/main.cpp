@@ -14,15 +14,19 @@
 int main(int argc, char** argv)
 {
     PetscInitialize (&argc, &argv, NULL, NULL);
-    
-    Watch watchSteady;
-    Watch watchOscAirfoil;
-    Watch watchAFT;
-    
     PetscMPIInt rank, n_procs;
     MPI_Comm world = PETSC_COMM_WORLD;
     MPI_Comm_rank (world, &rank);
     MPI_Comm_size (world, &n_procs);
+    
+    Watch watchSteady;
+    Watch watchOscAirfoil;
+    Watch watchAFT;
+    Watch watchPre;
+    Watch watchIblank;    
+    
+    //watchPre.start();
+    double prestart = MPI_Wtime();
     
     string mainDir = createOutputDir();
     
@@ -54,6 +58,14 @@ int main(int argc, char** argv)
     grs[0].cellADT.build (grs[0]);
     grs[1].cellADT.build (grs[1]);
     
+    //watchPre.stop();
+    double preend = MPI_Wtime();
+    cout << "pre = " << preend - prestart << endl;
+    //log (mainDir, watchPre.elapsedTime, "elapsedTimePre", watchPre.unit);
+    
+    //watchIblank.start();
+    double iblankstart = MPI_Wtime();
+    
     /*Iblank iBlank;
     iBlank.identify (grs[0], grs[1]);
     iBlank.identify (grs[1], grs[0]);*/
@@ -68,6 +80,11 @@ int main(int argc, char** argv)
     iblank.treatVoidAreas (grs[0]);
     iblank.treatVoidAreas (grs[1]);
     
+    //watchIblank.stop();
+    //log (mainDir, watchIblank.elapsedTime, "elapsedTimeIblank", watchIblank.unit);
+    double iblankend = MPI_Wtime();
+    cout << "iblank = " << iblankend - iblankstart << endl;
+
     for (int g=0; g<grs.size(); ++g)
     {
         for (int c=0; c<grs[g].cell.size(); ++c)
@@ -87,23 +104,26 @@ int main(int argc, char** argv)
     grs[0].outAllVTK (0);
     grs[1].outAllVTK (0);
     
-    //exit(-2);
+    
     
     Grid finalGrid (mainDir, 3);
     
     
-    watchAFT.start();
+    //watchAFT.start();
+    double aftstart = MPI_Wtime();
     AFT::aft (grs, finalGrid);    
     //cout << "out of AFT" << endl;
-    watchAFT.stop();    
+    //watchAFT.stop();    
+    double aftend = MPI_Wtime();
+    cout << "aft = " << aftend - aftstart << endl;
     //cout << "stopped aft watch" << endl;
-    log (mainDir, watchAFT.elapsedTime, "elapsedTimeAFT", watchAFT.unit);
+    //log (mainDir, watchAFT.elapsedTime, "elapsedTimeAFT", watchAFT.unit);
     //cout << "logged AFT" << endl;
     
     finalGrid.outAllVTK (0);
     //cout << "output final grid" << endl;
     
-    //exit(-2);
+    exit(-2);
     
     finalGrid.readInput();
     //cout << "read final grid" << endl;

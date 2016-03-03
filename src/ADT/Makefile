@@ -1,7 +1,7 @@
 CC = mpicxx
 CFLAGS = -c -std=c++11 -fpic -O3
 LDFLAGS = -shared
-SOURCES=ADT.cpp	
+SOURCES=ADT.cpp	DOTmaker.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 TARGET=libADT.so
 

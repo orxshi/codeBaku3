@@ -27,7 +27,6 @@ SOURCES=BoundaryConditions/BoundaryConditions.cpp\
         Vector/Vector.cpp\
         Time/Time.cpp\
         Method/Method.cpp\
-        IBlank/IBlank.cpp\
         LinearAlgebra/LinearAlgebra.cpp\
         Gradient/Gradient.cpp\
         Limiter/Limiter.cpp\

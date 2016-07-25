@@ -2,6 +2,7 @@
 address1 = ../../../../src/
 address2 = ../../../../src/AFT
 address3 = ../../../../src/ADT
+address4 = ../../../../src/IBlank/
 include ${PETSC_DIR}/lib/petsc/conf/variables
 #include ${PETSC_DIR}/lib/petsc/conf/rules
 #include ${PETSC_DIR}/lib/petsc/conf/test
@@ -12,6 +13,7 @@ CFLAGS = -c -std=c++11 -O3 -I$(INC1) -I$(INC2)
 LDFLAGS = -L$(address1) -Wl,-rpath=$(address1)
 LDFLAGS += -L$(address2) -Wl,-rpath=$(address2)
 LDFLAGS += -L$(address3) -Wl,-rpath=$(address3)
+LDFLAGS += -L$(address4) -Wl,-rpath=$(address4)
 SOURCES=main.cpp\
 	Init/Init.cpp\
 	Init/Read.cpp\
@@ -25,7 +27,7 @@ TARGET = out
 all: $(SOURCES) $(TARGET)
 	
 $(TARGET): $(OBJECTS) 
-	$(CC) $(LDFLAGS) $(OBJECTS) $(PETSC_LIB) -o $@ -lcb -lAFT -lADT
+	$(CC) $(LDFLAGS) $(OBJECTS) $(PETSC_LIB) -o $@ -lcb -lAFT -lADT -lIBlank
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

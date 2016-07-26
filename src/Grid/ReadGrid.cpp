@@ -1,6 +1,6 @@
 #include "Grid.h"
 
-void Grid::read_grid_GMSH()
+void Grid::read_grid_GMSH(string meshFile)
 {
     /* Read grid from a file which is created by GMSH. */
     
@@ -9,7 +9,7 @@ void Grid::read_grid_GMSH()
     
     // read number of points.
     // open mesh file.
-    in.open (meshFile);
+    ifstream in.open (meshFile);
 
     if (in.is_open())
     {
@@ -90,7 +90,7 @@ void Grid::read_grid_GMSH()
         
         if (gs_ <= geometric_shape_t::QUAD)
         {            
-            BoundaryFace bface_; // create a boundary face.
+            
             bface_.tag = tag_; // set tag of boundary face to that of grid.
             bface_.phys = phys_;            
             
@@ -98,19 +98,22 @@ void Grid::read_grid_GMSH()
             switch (tempi)
             {
                 case 2:
-                    bface_.geometric_shape = geometric_shape_t::TRI;
+                    gshape = "tri";                    
                     break;
                 case 3:
-                    bface_.geometric_shape = geometric_shape_t::QUAD;
+                    gshape = "quad";                    
                     break;
                 case 4:
-                    bface_.geometric_shape = geometric_shape_t::TET;
+                    gshape = "tet";
+                    
                     break;
                 case 5:
-                    bface_.geometric_shape = geometric_shape_t::HEX;
+                    gshape = "hex";
+                    
                     break;
                 case 6:
-                    bface_.geometric_shape = geometric_shape_t::PEN;
+                    gshape = "pen";
+                    
                     break;
                 default:
                     cout << "unknown boundary face type in read grid" << endl;
@@ -121,29 +124,26 @@ void Grid::read_grid_GMSH()
             switch (geometric_shape)
             {
                 case geometric_shape_t::TRI:            
-                    cell_.nVertices = 3;
-                    cell_.nFaces = 1;
-                    break;
-                case geometric_shape_t::HEX:            
-                    cell_.nVertices = 8;
-                    cell_.nFaces = 6;
-                    break;
-                case geometric_shape_t::TET:           
-                    cell_.nVertices = 4;
-                    cell_.nFaces = 4;
-                    break;
-                case geometric_shape_t::QUAD:            
-                    cell_.nVertices = 1;
-                    cell_.nFaces = 4;
-                    break;
-                case geometric_shape_t::PEN:            
-                    cell_.nVertices = 6;
-                    cell_.nFaces = 5;
+                    bface_.nVertices = 3;                    
                     break;                
+                case geometric_shape_t::QUAD:            
+                    bface_.nVertices = 4;                    
+                    break;                           
             }
             
             bface_.vtx.reserve (bface_.nVertices);
             bface_.vtxBelo.reserve (bface_.nVertices);
+            
+            // vertices.
+            vector<int> vtx;            
+            for (int i=0; i<bface_.nVertices; ++i)
+            {
+                in >> tempi;
+                vtx.push_back(tempi-1);                
+                pt[tempi-1].bfaceTag.push_back(bface.size());
+            }
+            
+            bface.push_back(move(BoundaryFace bface_(tag_, vtx, gshape)));
         }
         else
         {            
@@ -154,48 +154,24 @@ void Grid::read_grid_GMSH()
             switch (tempi)
             {                
                 case 2:
-                    cell_.geometric_shape = geometric_shape_t::TRI;
+                    cell_.shape = new GeometricShape::Tri();
                     break;
                 case 3:
-                    cell_.geometric_shape = geometric_shape_t::QUAD;
+                    cell_.shape = new GeometricShape::Quad();
                     break; 
                 case 4:
-                    cell_.geometric_shape = geometric_shape_t::TET;
+                    cell_.shape = new GeometricShape::Tet();
                     break;
                 case 5:
-                    cell_.geometric_shape = geometric_shape_t::HEX;
+                    cell_.shape = new GeometricShape::Hex();
                     break;
                 case 6:
-                    cell_.geometric_shape = geometric_shape_t::PEN;
+                    cell_.shape = new GeometricShape::Pen();
                     break;
                 default:
                     cout << "unknown boundary face in read grid" << endl;
                     exit(-2);
                     break;
-            }
-            
-            switch (geometric_shape)
-            {
-                case geometric_shape_t::TRI:            
-                    cell_.nVertices = 3;
-                    cell_.nFaces = 1;
-                    break;
-                case geometric_shape_t::HEX:            
-                    cell_.nVertices = 8;
-                    cell_.nFaces = 6;
-                    break;
-                case geometric_shape_t::TET:           
-                    cell_.nVertices = 4;
-                    cell_.nFaces = 4;
-                    break;
-                case geometric_shape_t::QUAD:            
-                    cell_.nVertices = 1;
-                    cell_.nFaces = 4;
-                    break;
-                case geometric_shape_t::PEN:            
-                    cell_.nVertices = 6;
-                    cell_.nFaces = 5;
-                    break;                
             }
             
             cell_.vtx.reserve (cell_.nVertices);
@@ -208,36 +184,12 @@ void Grid::read_grid_GMSH()
                 cell_.vtx.push_back(tempi-1);
                 cell_.vtxBelo.push_back (id);                
                 bt[tempi-1].insert(e);
+                pt[tempi-1].cellTag.push_back(cell.size());
             }
-        }        
-        
-        // was using bt for connectivity but this time boundary faces and cells are separated. so redesign bt or connectivity function.
-        
-        // vertices.
-        for (unsigned int i=0; i<tmpElm.nVertices; ++i)
-        {
-            in >> tempi;
-            tmpElm.vtx.push_back(tempi-1);
-            tmpElm.vtxBelo.push_back (id);
-            //tmpElm.vtx.push_back ( ref(pt[tempi-1]) );
-            //tmpElm.vtxIndex.push_back (tempi-1);
-            bt[tempi-1].insert(e);
-        }
-        
-        cell.push_back( move(tmpElm) );        
+            
+            cell.push_back(move(cell_));
+        } 
     }
-    
-    for (int c=0; c<n_bou_elm; ++c)
-    {
-        cell[c].ghost = true;
-    }
-    
-    for (int c=n_bou_elm; c<cell.size(); ++c)
-    {
-        cell[c].ghost = false;
-    }
-
-    n_in_elm = totalNElms - n_bou_elm;
 }
 
 void Grid::read_ptSize ()

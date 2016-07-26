@@ -20,14 +20,12 @@ using std::array;
 using std::string;
 using std::reference_wrapper;
 
-enum class nVerticesFace_t {UNDEFINED=-1, TRI=3, QUAD=4};
+enum class BC {UNDEFINED=-2, NA=-1, EMPTY=0, SLIP_WALL=1, DIRICHLET=2};
 
 struct Face
 {
+    GeometricShape::Shape* shape;
     int tag;
-    int phys; // transform this to something else otherwise not clear.
-    int nVertices;
-    int nFaces;
     vector <int> vtx;
     vector <int> nei;
     CVector area;
@@ -36,7 +34,7 @@ struct Face
     geometric_shape_t geometric_shape;
     
     // constructor.
-    Face();
+    Face(int tag, vector<int> vtx, string gshape, const vector<Point>& pt);
     
     void set_area (const vector<Point>& pt);
     void set_centroid (const vector<Point>& pt);
@@ -47,7 +45,8 @@ struct InteriorFace:Face
 };
 
 struct BoundaryFace:Face
-{
+{ 
+    BC bc;
 };
 
 #endif	/* FACE_H */

@@ -23,31 +23,31 @@ using std::move;
 
 class Face; // forward declaration
 
-
-enum class nFaces_t {UNDEFINED=-1, TRI=1, QUAD=1, TET=4, PEN=5, HEX=6};
-enum class nVertices_t {UNDEFINED=-1, TRI=3, QUAD=4, TET=4, PEN=6, HEX=8};
 enum class iBlank_t {UNDEFINED, NA, HOLE, FRINGE, FIELD};
-enum class BC {UNDEFINED=-2, NA=-1, EMPTY=0, SLIP_WALL=1, DIRICHLET=2};
+
 enum class vtkCellType_t {UNDEFINED=-1, TET=10, HEX=12, WEDGE=13, TRI=5};
 enum class fringeBou_t {UNDEFINED=-1, NO=0, YES=1};
 
+
+
+
+
 struct Cell
 {
-    // Fields
+    GeometricShape::Shape shape*;
     int phys; // transform this to something else otherwise not clear.
     Cell* donor;
     vector<Cell*> receiver;
     iBlank_t iBlank;
     int belonging;
     int nTrims;    
-    int nVertices;
-    int nFaces;
-    vector <int> nei;
+    
+    vector <int> nei; // only cell neighbors.
+    
     double Mach;
     double sigma;
     double wallDistance;
     double vol;
-    //double r_11, r_12, r_13, r_22, r_23, r_33;
     Vector<N_VAR> R;
     Vector<N_VAR> dQ, old_dQ;
     Vector<N_VAR> prim, cons, old_cons, oldold_cons;
@@ -61,7 +61,7 @@ struct Cell
     //Vector2D <N_DIM,N_VAR> grad;
     Vector2D <N_DIM,N_VAR> emin;
     Vector2D <N_DIM,N_VAR> emax;
-    vector <int> face;    
+    vector <int> face; // stores indices of faces.
     geometric_shape_t geometric_shape;
     vector <int> vtx;
     vector <int> vtxBelo;

@@ -1,12 +1,29 @@
 #include "Face.h"
 
-
-
-Face::Face()
+Face::Face(int tag, vector<int> vtx, string gshape, pt, const vector<Point>& pt);
 {
     vb[0] = 0.;
     vb[1] = 0.;
     vb[2] = 0.;
+    
+    this.tag = tag;
+    this.vtx = vtx;
+    
+    if (gshape.compare("tri"))
+    {
+        face_.shape = new GeometricShape::Tri();
+    }
+    else if (gshape.compare("quad"))
+    {
+        face_.shape = new GeometricShape::Quad();
+    }
+    else
+    {
+        cout << "undefined geometric shape in constructor of f" << endl;
+    }
+    
+    set_area(pt);
+    set_centroid(pt);
 }
 
 void Face::set_area (const vector<Point>& pt)

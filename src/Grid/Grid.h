@@ -21,12 +21,10 @@
 #include <mpi.h>
 #include "../Vector/Vector.h"
 #include "../Face/Face.h"
-#include "BinaryTree.h"
 #include "../ADT/ADT.h"
 #include "../LinearAlgebra/LinearAlgebra.h"
 #include "../Point/Point.h"
 #include "../Solid/Solid.h"
-//#include "../Gradient/Gradient.h"
 
 using std::ifstream;
 using std::ofstream;
@@ -49,9 +47,7 @@ using std::setw;
 using std::stringstream;
 using std::scientific;
 
-enum class geometric_shape_t {UNDEFINED=-1, TRI=2, QUAD=3, TET=4, HEX=5, PEN=6};
-
-// Decided whether this struct or HoleMap will be used.
+// Decide whether this struct or HoleMap will be used.
 struct Hole
 {
     array <double, N_DIM> min;
@@ -60,26 +56,17 @@ struct Hole
 
 struct Grid
 {
-    // Fields    
-    int n_bou_face; // number of boundary faces.
-    int n_cell; // number of cells.    
-    int tag; // tag of grid.
-    int phys_count; // number of phys (GMSH related).
+    int tag; // tag of grid.    
     int nHoles; // number of holes in grid.
-    double wallDistance; // not clear.
-    ifstream in; // required to read grid from a file. should be created in function, not here.
-    string meshFile; // file to read grid from.
+    double wallDistance; // not clear.    
     string outputDir; // not clear.
     string mainDir; // not clear.
-    string logDir; // path of log file.
-    vector<int> phys; // GMSH related but should not be so.
-    vector<int> bc; // not clear.
+    string logDir; // path of log file.     
     vector <Point> pt; // points.    
-    vector <BoundaryFace> bface;
-    vector <InteriorFace> iface;
+    vector <BoundaryFace> bface; // boundary faces.
+    vector <InteriorFace> iface; // interior faces.
     vector <Cell> cell; // cells.    
-    vector <Hole> holes; // vector of holes.
-    array<string,3> bcVerbose; // not clear.
+    vector <Hole> holes; // vector of holes.    
     
     // ADT specific for cells. do not know if I can make it generic.
     struct CellADT: ADT
@@ -104,13 +91,12 @@ struct Grid
     void read_elmSize ();
     void read_elm ();
     void set_faceVertices (Face& face, const Cell& elm, const int index);
-    void set_connectivity ();
-    void set_elmVolumes ();
-    void set_elmCentroids ();
+    void cell_to_cell_connectivity ();
     void updateVars();
     double setExpRes();
     void printInput();
     void printMeshInfo();
+    void read_grid_GMSH(string meshFile);
 
     // Public Methods
     void readInput();    

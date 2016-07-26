@@ -49,6 +49,9 @@ using std::setw;
 using std::stringstream;
 using std::scientific;
 
+enum class geometric_shape_t {UNDEFINED=-1, TRI=2, QUAD=3, TET=4, HEX=5, PEN=6};
+
+// Decided whether this struct or HoleMap will be used.
 struct Hole
 {
     array <double, N_DIM> min;
@@ -57,28 +60,28 @@ struct Hole
 
 struct Grid
 {
-    // Fields
-    int n_bou_elm;
-    int n_in_elm;
-    int totalNElms;
-    int id;
-    int phys_count;
-    int nHoles;    
-    double wallDistance;    
-    ifstream in; // for reading grid input
-    string meshFile;
-    string outputDir;
-    string mainDir;
-    string logDir;
-    vector<int> phys;
-    vector<int> bc;
-    vector <Point> pt;
-    vector <Face> face;
-    vector <Cell> cell;
-    vector <btree> bt;
-    vector <Hole> holes;    
-    array<string,3> bcVerbose;    
+    // Fields    
+    int n_bou_face; // number of boundary faces.
+    int n_cell; // number of cells.    
+    int tag; // tag of grid.
+    int phys_count; // number of phys (GMSH related).
+    int nHoles; // number of holes in grid.
+    double wallDistance; // not clear.
+    ifstream in; // required to read grid from a file. should be created in function, not here.
+    string meshFile; // file to read grid from.
+    string outputDir; // not clear.
+    string mainDir; // not clear.
+    string logDir; // path of log file.
+    vector<int> phys; // GMSH related but should not be so.
+    vector<int> bc; // not clear.
+    vector <Point> pt; // points.    
+    vector <BoundaryFace> bface;
+    vector <InteriorFace> iface;
+    vector <Cell> cell; // cells.    
+    vector <Hole> holes; // vector of holes.
+    array<string,3> bcVerbose; // not clear.
     
+    // ADT specific for cells. do not know if I can make it generic.
     struct CellADT: ADT
     {
         bool compareFunction (const Node *node, const ADTPoint& targetPoint) override;
@@ -86,7 +89,7 @@ struct Grid
         void build (const Grid& gr);
     } cellADT;
 
-    // Constructor
+    // constructor
     Grid (string mainDir, int id);
     //Grid (const Grid&);
     Grid (Grid&& other);

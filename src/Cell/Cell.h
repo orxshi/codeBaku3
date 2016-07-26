@@ -23,7 +23,7 @@ using std::move;
 
 class Face; // forward declaration
 
-enum class elmType_t {UNDEFINED=-1, TRI=2, QUAD=3, TET=4, HEX=5, PEN=6};
+
 enum class nFaces_t {UNDEFINED=-1, TRI=1, QUAD=1, TET=4, PEN=5, HEX=6};
 enum class nVertices_t {UNDEFINED=-1, TRI=3, QUAD=4, TET=4, PEN=6, HEX=8};
 enum class iBlank_t {UNDEFINED, NA, HOLE, FRINGE, FIELD};
@@ -34,7 +34,7 @@ enum class fringeBou_t {UNDEFINED=-1, NO=0, YES=1};
 struct Cell
 {
     // Fields
-    int phys;
+    int phys; // transform this to something else otherwise not clear.
     Cell* donor;
     vector<Cell*> receiver;
     iBlank_t iBlank;
@@ -62,7 +62,7 @@ struct Cell
     Vector2D <N_DIM,N_VAR> emin;
     Vector2D <N_DIM,N_VAR> emax;
     vector <int> face;    
-    elmType_t type;
+    geometric_shape_t geometric_shape;
     vector <int> vtx;
     vector <int> vtxBelo;
     BC bc;    
@@ -79,6 +79,7 @@ struct Cell
     void prim_to_cons();
     void cons_to_prim();
     //void interpolate();
+    
 };
 
 #endif	/* ELEMENT_H */

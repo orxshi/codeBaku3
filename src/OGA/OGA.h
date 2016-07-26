@@ -17,7 +17,7 @@ struct MeshBlock
 
 struct HoleMap
 {        
-    /* Hole map is a map to represent hole region with Cartesian grid. */
+    /* Hole map is a map which represents hole region with Cartesian grid. */
     
     // aabb is axis-aligned bounding box (rectangle) which has 4 corners.
     aabb[4];

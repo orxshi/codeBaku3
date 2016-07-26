@@ -1,5 +1,245 @@
 #include "Grid.h"
 
+void Grid::read_grid_GMSH()
+{
+    /* Read grid from a file which is created by GMSH. */
+    
+    string temps; // for storing redundant a string.
+    int tempi; // for storing redundant a number.    
+    
+    // read number of points.
+    // open mesh file.
+    in.open (meshFile);
+
+    if (in.is_open())
+    {
+        // read line until "$Nodes" is found.
+        do
+        {
+            getline (in, temps);
+        }
+        while (temps != "$Nodes");
+
+        // number under "$Nodes" is the number of points.
+        in >> tempi;
+        pt.resize (tempi);        
+    }
+    else
+    {
+        cout << "Could not open mesh file" << endl;
+        exit(-2);
+    }
+    
+    // read points.
+    for (unsigned int i=0; i<pt.size(); ++i)
+    {
+        in >> temps;
+        in >> pt[i].dim[0];
+        in >> pt[i].dim[1];
+        in >> pt[i].dim[2];
+        
+        pt[i].belonging = id;
+    }
+    
+    // read number of elements.
+    // read line until "$Elements" is found.
+    do
+    {
+        getline (in, temps);
+    }
+    while (temps != "$Elements");
+
+    // the number under "$Elements" is total number of elements which includes ghosts and interiors.
+    in >> totalNElms;
+    
+    // read elements.
+    bool stillBoundary = true;
+    int n_tags; // related to GMSH.
+    int tag_count; // related to GMSH.
+    int n_part_belongs;
+
+    vector <btree> bt; // for fast cell-to-cell connectivity.
+    bt.resize (pt.size() + 1);
+
+    for (int e=0; e<totalNElms; ++e)
+    {
+        in >> tag_; // read tag of boundary face or cell.
+        in >> gs_; // read geometric shape of boundary face or cell.        
+        in >> n_tags_; // read number of GMSH tags.
+
+        tag_count_ = 0;
+
+        // read GMSH tags.
+        while (n_tags_ > 0)
+        {
+            // read physical number.
+            in >> phys_;
+            ++ tag_count_;
+            if (tag_count_ == n_tags_) break;
+            in >> geo_; // read geometrical number.
+            ++ tag_count_;
+            if (tag_count_ == n_tags_) break;
+            in >> n_part_; // read number of partitions to which element belongs.
+            for (int i=0; i<n_part_; ++i)
+            {
+                in >> temps;
+            }            
+            
+            break;
+        }
+        
+        if (gs_ <= geometric_shape_t::QUAD)
+        {            
+            BoundaryFace bface_; // create a boundary face.
+            bface_.tag = tag_; // set tag of boundary face to that of grid.
+            bface_.phys = phys_;            
+            
+            // set geometric shape of boundary face.
+            switch (tempi)
+            {
+                case 2:
+                    bface_.geometric_shape = geometric_shape_t::TRI;
+                    break;
+                case 3:
+                    bface_.geometric_shape = geometric_shape_t::QUAD;
+                    break;
+                case 4:
+                    bface_.geometric_shape = geometric_shape_t::TET;
+                    break;
+                case 5:
+                    bface_.geometric_shape = geometric_shape_t::HEX;
+                    break;
+                case 6:
+                    bface_.geometric_shape = geometric_shape_t::PEN;
+                    break;
+                default:
+                    cout << "unknown boundary face type in read grid" << endl;
+                    exit(-2);
+                    break;
+            }            
+            
+            switch (geometric_shape)
+            {
+                case geometric_shape_t::TRI:            
+                    cell_.nVertices = 3;
+                    cell_.nFaces = 1;
+                    break;
+                case geometric_shape_t::HEX:            
+                    cell_.nVertices = 8;
+                    cell_.nFaces = 6;
+                    break;
+                case geometric_shape_t::TET:           
+                    cell_.nVertices = 4;
+                    cell_.nFaces = 4;
+                    break;
+                case geometric_shape_t::QUAD:            
+                    cell_.nVertices = 1;
+                    cell_.nFaces = 4;
+                    break;
+                case geometric_shape_t::PEN:            
+                    cell_.nVertices = 6;
+                    cell_.nFaces = 5;
+                    break;                
+            }
+            
+            bface_.vtx.reserve (bface_.nVertices);
+            bface_.vtxBelo.reserve (bface_.nVertices);
+        }
+        else
+        {            
+            Cell cell_; // create a cell.
+            cell_.tag = tag; // set tag of cell to that of grid.
+            cell_.phys = phys_;
+            
+            switch (tempi)
+            {                
+                case 2:
+                    cell_.geometric_shape = geometric_shape_t::TRI;
+                    break;
+                case 3:
+                    cell_.geometric_shape = geometric_shape_t::QUAD;
+                    break; 
+                case 4:
+                    cell_.geometric_shape = geometric_shape_t::TET;
+                    break;
+                case 5:
+                    cell_.geometric_shape = geometric_shape_t::HEX;
+                    break;
+                case 6:
+                    cell_.geometric_shape = geometric_shape_t::PEN;
+                    break;
+                default:
+                    cout << "unknown boundary face in read grid" << endl;
+                    exit(-2);
+                    break;
+            }
+            
+            switch (geometric_shape)
+            {
+                case geometric_shape_t::TRI:            
+                    cell_.nVertices = 3;
+                    cell_.nFaces = 1;
+                    break;
+                case geometric_shape_t::HEX:            
+                    cell_.nVertices = 8;
+                    cell_.nFaces = 6;
+                    break;
+                case geometric_shape_t::TET:           
+                    cell_.nVertices = 4;
+                    cell_.nFaces = 4;
+                    break;
+                case geometric_shape_t::QUAD:            
+                    cell_.nVertices = 1;
+                    cell_.nFaces = 4;
+                    break;
+                case geometric_shape_t::PEN:            
+                    cell_.nVertices = 6;
+                    cell_.nFaces = 5;
+                    break;                
+            }
+            
+            cell_.vtx.reserve (cell_.nVertices);
+            cell_.vtxBelo.reserve (cell_.nVertices);
+            
+            // vertices.
+            for (int i=0; i<cell_.nVertices; ++i)
+            {
+                in >> tempi;
+                cell_.vtx.push_back(tempi-1);
+                cell_.vtxBelo.push_back (id);                
+                bt[tempi-1].insert(e);
+            }
+        }        
+        
+        // was using bt for connectivity but this time boundary faces and cells are separated. so redesign bt or connectivity function.
+        
+        // vertices.
+        for (unsigned int i=0; i<tmpElm.nVertices; ++i)
+        {
+            in >> tempi;
+            tmpElm.vtx.push_back(tempi-1);
+            tmpElm.vtxBelo.push_back (id);
+            //tmpElm.vtx.push_back ( ref(pt[tempi-1]) );
+            //tmpElm.vtxIndex.push_back (tempi-1);
+            bt[tempi-1].insert(e);
+        }
+        
+        cell.push_back( move(tmpElm) );        
+    }
+    
+    for (int c=0; c<n_bou_elm; ++c)
+    {
+        cell[c].ghost = true;
+    }
+    
+    for (int c=n_bou_elm; c<cell.size(); ++c)
+    {
+        cell[c].ghost = false;
+    }
+
+    n_in_elm = totalNElms - n_bou_elm;
+}
+
 void Grid::read_ptSize ()
 {
     string temps;

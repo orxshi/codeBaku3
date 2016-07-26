@@ -21,23 +21,33 @@ using std::string;
 using std::reference_wrapper;
 
 enum class nVerticesFace_t {UNDEFINED=-1, TRI=3, QUAD=4};
-enum class face_t {UNDEFINED=-1, BOUNDARY=0, INTERIOR=1};
 
 struct Face
 {
+    int tag;
+    int phys; // transform this to something else otherwise not clear.
+    int nVertices;
+    int nFaces;
     vector <int> vtx;
     vector <int> nei;
     CVector area;
     CVector cnt;
-    CVector vb;
-    face_t bouType;
-    //array < Matrix5, N_NEI_FACE > M; // left matrix, right matrix
-    //array < Matrixd<N_VAR,N_VAR>, N_NEI_FACE > M; // left matrix, right matrix
+    CVector vb;    
+    geometric_shape_t geometric_shape;
     
-    // Methods
+    // constructor.
     Face();
+    
     void set_area (const vector<Point>& pt);
     void set_centroid (const vector<Point>& pt);
+};
+
+struct InteriorFace:Face
+{
+};
+
+struct BoundaryFace:Face
+{
 };
 
 #endif	/* FACE_H */

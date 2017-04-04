@@ -1,22 +1,52 @@
-OBJDIR = obj
-INCDIR = inc
-CC = g++
-CFLAGS = -c -std=c++11 -fpic -O3 -MMD -I$(INCDIR) -larmadillo
+include ${PETSC_DIR}/lib/petsc/conf/variables
+#include ${PETSC_DIR}/lib/petsc/conf/rules
+#include ${PETSC_DIR}/lib/petsc/conf/test
+INC1=${PETSC_DIR}/include
+INC2=${PETSC_DIR}/$(PETSC_ARCH)/include
+CC = mpicxx
+CFLAGS = -c -std=c++11 -fpic -O3 -I$(INC1) -I$(INC2)
 LDFLAGS = -shared
-SRC := $(wildcard *.cpp)
-OBJ = $(patsubst %.cpp,obj/%.o,$(SRC)) 
+SOURCES=BoundaryConditions/BoundaryConditions.cpp\
+	Cell/Cell.cpp\
+        Face/Face.cpp\
+        Grid/Grid.cpp\
+        Grid/ReadGrid.cpp\
+        Grid/SetGrid.cpp\
+        Grid/Output.cpp\
+        InterFlux/Interflux.cpp\
+        InterFlux/Roe/Roe.cpp\
+        Matrix5/Operators.cpp\
+        Output/Output.cpp\
+        Solver/Solver.cpp\
+        Solver/Explicit.cpp\
+        Solver/Implicit.cpp\
+        Solver/PreSolver.cpp\
+        Solver/Output.cpp\
+        Solver/Residual.cpp\
+        Solver/Petsc.cpp\
+        Vector/Vector.cpp\
+        Time/Time.cpp\
+        Method/Method.cpp\
+        LinearAlgebra/LinearAlgebra.cpp\
+        Gradient/Gradient.cpp\
+        Limiter/Limiter.cpp\
+	Point/Point.cpp\
+	MovingMesh/MovingMesh.cpp\
+	Coeffs/Coeffs.cpp
+OBJECTS=$(SOURCES:.cpp=.o)
+#EXECUTABLE=codeBaku
 TARGET=libcb.so
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) -o $@
+#all: $(SOURCES) $(EXECUTABLE)
+	
+$(TARGET): $(OBJECTS) 
+	$(CC) $(LDFLAGS) $(OBJECTS) $(PETSC_LIB) -o $@
 
-$(OBJDIR)/%.o: %.cpp
+.cpp.o:
 	$(CC) $(CFLAGS) $< -o $@
-  
--include $(ODBJIR)/*.d
 	
 .PHONY: clean
 clean:
-	rm -rf $(OBJ) $(TARGET)
+	rm -rf $(OBJECTS) $(TARGET)

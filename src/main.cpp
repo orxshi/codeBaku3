@@ -5,7 +5,7 @@
  * Created on June 12, 2014, 11:35 PM
  */
 
-#include "../inc/Method.h"
+#include "Method/Method.h"
 
 int main(int argc, char** argv)
 {
